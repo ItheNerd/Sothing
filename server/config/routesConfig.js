@@ -1,10 +1,16 @@
-const { registerUser } = require("../controllers/user");
+const fs = require("fs");
+const path = require("path");
 const errorHandler = require("../middleware/errorHandler");
-const userRoute = require("../routes/user")
 
 function configureRoutes(app) {
-  app.use('/api/user', userRoute);
-  app.use('/user', registerUser);
+  const routesPath = path.join(__dirname, "../routes");
+  fs.readdirSync(routesPath).forEach((file) => {
+    if (file.endsWith(".js")) {
+      const route = require(path.join(routesPath, file));
+      const basePath = `/api/${file.split("Routes.js")[0].toLowerCase()}`;
+      app.use(basePath, route);
+    }
+  });
   app.use(errorHandler);
 }
 
