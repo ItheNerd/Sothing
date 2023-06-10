@@ -3,12 +3,15 @@ import AuthContext from "@/context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import { cn } from "@/lib/utils/utils";
 
 export default function Login() {
   let { loginUser, user } = useContext(AuthContext);
+  console.log(user)
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log(user);
     user &&
       toast.info("Already Logged in!", {
         position: "bottom-left",
@@ -48,8 +51,7 @@ export default function Login() {
             <div>
               <label
                 htmlFor="text"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
+                className="block text-sm font-medium leading-6 text-gray-900">
                 Email
               </label>
               <div className="mt-2">
@@ -67,8 +69,7 @@ export default function Login() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
+                  className="block text-sm font-medium leading-6 text-gray-900">
                   Password
                 </label>
               </div>
@@ -87,8 +88,7 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
+                className={cn("btn min-h-0 h-9 capitalize flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", {"btn-disabled" : user, "btn-primary" : !user})}>
                 Sign in
               </button>
             </div>

@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-
 var userSchema = new mongoose.Schema(
   {
     firstname: {
@@ -10,7 +9,6 @@ var userSchema = new mongoose.Schema(
     },
     lastname: {
       type: String,
-      required: true,
     },
     email: {
       type: String,
@@ -19,8 +17,6 @@ var userSchema = new mongoose.Schema(
     },
     mobile: {
       type: String,
-      required: true,
-      unique: true,
     },
     password: {
       type: String,
@@ -38,13 +34,8 @@ var userSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-    address: {
-      type: String,
-    },
+    address: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
     wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-    refreshToken: {
-      type: String,
-    },
     refreshToken: {
       type: String,
     },

@@ -9,34 +9,55 @@ const AuthContext = createContext();
 export default AuthContext;
 
 export const AuthProvider = ({ children }) => {
-  let [authTokens, setAuthTokens] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? localStorage.getItem("authTokens")
+  const [accessToken, setAccessToken] = useState(() =>
+    localStorage.getItem("accessToken")
+      ? localStorage.getItem("accessToken")
       : null
   );
-  let [user, setUser] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? jwt_decode(localStorage.getItem("authTokens")).name
+  const [user, setUser] = useState(() =>
+    localStorage.getItem("accessToken")
+      ? jwt_decode(localStorage.getItem("accessToken")).firstname
       : null
   );
-  let [userInfo, setUserInfo] = useState(() =>
-    localStorage.getItem("authTokens")
-      ? jwt_decode(localStorage.getItem("authTokens"))
+  const [userInfo, setUserInfo] = useState(() =>
+    localStorage.getItem("accessToken")
+      ? jwt_decode(localStorage.getItem("accessToken"))
       : null
   );
-  let [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
+  const getUserInfo = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const res = await axios.get(`${baseURL}/api/user/info`);
+        axios.defaults.headers.common['x-auth-token'] = token;
+
+        let data = await res.json();
+
+        setAccessToken(data.accessToken);
+        setUser(jwt_decode(data.accessToken).firstname);
+        setUserInfo(jwt_decode(data.accessToken));
+        localStorage.setItem("accessToken", data.accessToken);
+      } catch (err) {
+        console.error(err);
+      }
+    } else {
+      delete axios.defaults.headers.common['x-auth-token'];
+    }
+  };
+
   const registerUser = async (e) => {
     e.preventDefault();
-    let response = await fetch(`${baseURL}/api/user/`, {
+    let response = await fetch(`${baseURL}/api/user/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        name: e.target.name.value,
+        firstname: e.target.name.value,
         password: e.target.password.value,
         email: e.target.email.value,
       }),
@@ -54,10 +75,10 @@ export const AuthProvider = ({ children }) => {
         progress: undefined,
         theme: "light",
       });
-      setAuthTokens(data.token);
-      setUser(jwt_decode(data.token).name);
-      setUserInfo(jwt_decode(data.token));
-      localStorage.setItem("authTokens", data.token);
+      setAccessToken(data.accessToken);
+      setUser(jwt_decode(data.accessToken).firstname);
+      setUserInfo(jwt_decode(data.accessToken));
+      localStorage.setItem("accessToken", data.accessToken);
       setTimeout(() => navigate("/"), 1000);
     } else {
       toast.error(data.msg, {
@@ -98,13 +119,12 @@ export const AuthProvider = ({ children }) => {
         progress: undefined,
         theme: "light",
       });
-      setAuthTokens(data.token);
-      setUser(jwt_decode(data.token).name);
-      setUserInfo(jwt_decode(data.token));
-      localStorage.setItem("authTokens", data.token);
+      setAccessToken(data.accessToken);
+      setUser(jwt_decode(data.accessToken).firstname);
+      setUserInfo(jwt_decode(data.accessToken));
+      localStorage.setItem("accessToken", data.accessToken);
       setTimeout(() => navigate("/"), 1000);
     } else {
-      console.log("yup, not there!");
       toast.error("Incorrect Credentials", {
         position: "bottom-left",
         autoClose: 3000,
@@ -119,17 +139,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   let logoutUser = () => {
-    setAuthTokens(null);
+    setAccessToken(null);
     setUser(null);
-    localStorage.removeItem("authTokens");
+    localStorage.removeItem("accessToken");
+    document.cookie =
+      "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     navigate("/login");
   };
 
   let contextData = {
     user: user,
     userInfo: userInfo,
-    authTokens: authTokens,
-    setAuthTokens: setAuthTokens,
+    accessToken: accessToken,
+    setAccessToken: setAccessToken,
     setUser: setUser,
     setUserInfo: setUserInfo,
     registerUser: registerUser,
@@ -137,13 +159,24 @@ export const AuthProvider = ({ children }) => {
     logoutUser: logoutUser,
   };
 
-  useEffect(() => {
-    if (authTokens) {
-      setUser(jwt_decode(authTokens).name);
-      setUserInfo(jwt_decode(authTokens));
+  
+  // verify user on reducer state init or changes
+  useEffect(async () => {
+    if (!user || !accessToken) {
+        await getUserInfo();
     }
-    setLoading(false);
-  }, [authTokens, loading]);
+  }, [accessToken, loading, userInfo]);
+
+
+//   useEffect(() => {
+//     setAccessToken(localStorage.getItem("accessToken"))
+//     if (accessToken) {
+//       setUser(jwt_decode(localStorage.getItem("accessToken")).firstname);
+//       setUserInfo(jwt_decode(localStorage.getItem("accessToken")));
+//       console.log("this",accessToken)
+//     }
+//     setLoading(false);
+//   }, [accessToken, loading]);
 
   return (
     <AuthContext.Provider value={contextData}>

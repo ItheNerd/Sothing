@@ -1,19 +1,20 @@
-import { useEffect, useState } from "react";
+import BrowseStore from "@/components/BrowseStore";
+import CartOverlay from "@/components/CartOverlay";
+import CategoryPreview from "@/components/CategoryPreview";
+import Header from "@/components/Header";
+import PlatformFeatures from "@/components/PlatformFeatures";
+import Product from "@/components/Product";
+import MainLayout from "@/layouts/MainLayout";
 
-function Index() {
-  const [message, setMessage] = useState("");
-  const baseURL = import.meta.env.VITE_API_BASE_URL
-  useEffect(() => {
-    fetch(`${baseURL}/`)
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message));
-  }, []);
-
+export default function Sample() {
   return (
-    <div className="App">
-      <h1>{message}</h1>
-    </div>
+    <MainLayout>
+      <Header />
+      <PlatformFeatures/>
+      <CategoryPreview />
+      <Product />
+      <BrowseStore />
+      <CartOverlay />
+    </MainLayout>
   );
 }
-
-export default Index;

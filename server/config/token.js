@@ -6,6 +6,7 @@ function generateAccessToken(user) {
     id: user._id,
     email: user.email,
     role: user.role,
+    firstname: user.firstname
   };
   // Generate the access token using JWT
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
@@ -20,7 +21,8 @@ function generateRefreshToken(user) {
     id: user._id,
     email: user.email,
     role: user.role,
-  };
+    firstname: user.firstname
+};
   // Generate the refresh token using JWT
   const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: "7d",

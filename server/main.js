@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const corsOptions = require("./config/corsOrigin");
 const configureRoutes = require("./config/routesConfig");
+const cookieParser = require("cookie-parser");
 
 require("dotenv").config();
 
@@ -11,6 +12,7 @@ mongoose.Promise = global.Promise;
 
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use(cookieParser);
 
 mongoose
   .connect(`${process.env.DB_URI}/sothingsDB`, {

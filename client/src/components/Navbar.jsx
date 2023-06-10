@@ -1,10 +1,14 @@
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import AuthContext from "@/context/AuthContext";
+import { useNavigate } from "react-router";
+import { cn } from "@/lib/utils/utils";
+import { SearchIcon } from "lucide-react";
 
 const navigation = [
-  { name: "Dashboard", href: "#", current: true },
-  { name: "Team", href: "#", current: false },
+  { name: "Dashboard", href: "#", current: false },
+  { name: "Team", href: "#", current: true },
   { name: "Projects", href: "#", current: false },
   { name: "Calendar", href: "#", current: false },
 ];
@@ -14,7 +18,8 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
-  const [User, setUser] = useState(true);
+  let { logoutUser, user } = useContext(AuthContext);
+  const navigate = useNavigate();
   return (
     <Disclosure as="nav" className="p-3">
       {({ open }) => (
@@ -35,15 +40,17 @@ export default function Navbar() {
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
                   <span
-                    className="block text-2xl font-bold h-8 w-auto lg:hidden"
+                    className="block h-8 w-auto text-2xl font-bold lg:hidden"
                     src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Your Company"
-                  >Sothings.</span>
+                    alt="Your Company">
+                    Sothings.
+                  </span>
                   <span
-                    className="hidden text-2xl font-bold h-8 w-auto lg:block"
+                    className="hidden h-8 w-auto text-2xl font-bold lg:block"
                     src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Your Company"
-                  >Sothings.</span>
+                    alt="Your Company">
+                    Sothings.
+                  </span>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -53,9 +60,9 @@ export default function Navbar() {
                         href={item.href}
                         className={classNames(
                           item.current
-                            ? "text-primary font-black after:h-1 after:w-1/2 after:bg-black"
+                            ? "font-black text-primary after:h-1 after:w-1/2 after:rounded-full after:bg-black"
                             : "font-medium",
-                          "relative btn btn-ghost px-3 py-3 text-sm"
+                          "btn-ghost btn relative px-3 py-3 text-sm"
                         )}
                         aria-current={item.current ? "page" : undefined}>
                         {item.name}
@@ -103,10 +110,10 @@ export default function Navbar() {
                   </div>
                   <Transition
                     as={Fragment}
-                    enter="transition ease-out duration-100"
+                    enter="transition ease-out duration-200"
                     enterFrom="transform opacity-0 scale-95"
                     enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
+                    leave="transition ease-in duration-100"
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95">
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
@@ -134,51 +141,81 @@ export default function Navbar() {
                           </a>
                         )}
                       </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a
-                            href="#"
-                            className={classNames(
-                              active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
-                            )}>
-                            Sign out
-                          </a>
-                        )}
-                      </Menu.Item>
+                      {user ? (
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              href="#"
+                              onClick={logoutUser}
+                              className={classNames(
+                                active ? "bg-gray-100" : "",
+                                "block px-4 py-2 text-sm text-gray-700"
+                              )}>
+                              Sign Out
+                            </a>
+                          )}
+                        </Menu.Item>
+                      ) : (
+                        <Menu.Item>
+                          {({ active }) => (
+                            <a
+                              href="#"
+                              onClick={() => navigate("/login")}
+                              className={classNames(
+                                active ? "bg-gray-100" : "",
+                                "block px-4 py-2 text-sm text-gray-700"
+                              )}>
+                              Sign In
+                            </a>
+                          )}
+                        </Menu.Item>
+                      )}
                     </Menu.Items>
                   </Transition>
                 </Menu>
               </div>
             </div>
           </div>
+          <Transition
+            enter="transition duration-100 ease-out"
+            enterFrom="transform scale-95 opacity-0"
+            enterTo="transform scale-100 opacity-100"
+            leave="transition duration-75 ease-out"
+            leaveFrom="transform scale-100 opacity-100"
+            leaveTo="transform scale-95 opacity-0">
+            <Disclosure.Panel className="relative w-full rounded-lg sm:hidden">
+              <div className="space-y-1 pb-3 pt-2">
+                {navigation.map((item) => (
+                  <Disclosure.Button
+                    key={item.name}
+                    as="a"
+                    href={item.href}
+                    className={cn(
+                      item.current
+                        ? "btn-primary"
+                        : "bg-base-200 duration-300 hover:bg-transparent",
+                      "btn block w-full rounded-md px-3 py-2 text-left text-base font-medium "
+                    )}
+                    aria-current={item.current ? "page" : undefined}>
+                    {item.name}
+                  </Disclosure.Button>
+                ))}
 
-          <Disclosure.Panel className="sm:hidden bg-primary-content rounded-lg w-1/3">
-            <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
-                <Disclosure.Button
-                  key={item.name}
-                  as="a"
-                  href={item.href}
-                  className={classNames(
-                    item.current
-                      ? "btn-active btn text-left w-48"
-                      : "btn btn-ghost text-left w-48",
-                    "block rounded-md px-3 py-2 text-base font-medium"
-                  )}
-                  aria-current={item.current ? "page" : undefined}>
-                  {item.name}
-                </Disclosure.Button>
-              ))}
-              <Disclosure.Button className="form-control">
+                <div className="flex h-14 w-full items-center justify-center gap-2">
                   <input
                     type="text"
                     placeholder="Search"
-                    className="input-bordered input w-full"
+                    className="input w-full bg-base-200"
                   />
-              </Disclosure.Button>
-            </div>
-          </Disclosure.Panel>
+                  <SearchIcon
+                    size={36}
+                    strokeWidth={2.5}
+                    className="h-[85%] rounded-lg bg-base-200 p-1"
+                  />
+                </div>
+              </div>
+            </Disclosure.Panel>
+          </Transition>
         </>
       )}
     </Disclosure>

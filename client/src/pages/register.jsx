@@ -3,6 +3,7 @@ import AuthContext from "@/context/AuthContext";
 import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
+import { cn } from "@/lib/utils/utils";
 
 export default function Login() {
   let { registerUser, user } = useContext(AuthContext);
@@ -105,7 +106,7 @@ export default function Login() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className={cn("btn min-h-0 h-9 capitalize flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2", {"btn-disabled" : user, "btn-primary" : !user})}
               >
                 Register
               </button>
