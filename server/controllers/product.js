@@ -1,8 +1,8 @@
-const Product = require("../models/productModel");
-const User = require("../models/userModel");
+const Product = require("../models/Product");
+const User = require("../models/User");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
-const validateMongoDbId = require("../utils/validateMongodbId");
+const validateId = require("../utils/validateId");
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
@@ -18,7 +18,7 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const id = req.params;
-  validateMongoDbId(id);
+  validateId(id);
   try {
     if (req.body.title) {
       req.body.slug = slugify(req.body.title);
@@ -34,7 +34,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 const deleteProduct = asyncHandler(async (req, res) => {
   const id = req.params;
-  validateMongoDbId(id);
+  validateId(id);
   try {
     const deleteProduct = await Product.findOneAndDelete(id);
     res.json(deleteProduct);
@@ -43,14 +43,16 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
-const getaProduct = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  validateMongoDbId(id);
-  try {
-    const findProduct = await Product.findById(id);
-    res.json(findProduct);
+const getProduct = asyncHandler(async (req, res) => {
+  const { id } = req.query;
+  if(!id){try {
+    validateId(id);
+    const product = await Product.findById(id);
+    res.json(product);
   } catch (error) {
     throw new Error(error);
+  }}else{
+    getAllProduct
   }
 });
 
@@ -99,6 +101,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
     throw new Error(error);
   }
 });
+
 const addToWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const { prodId } = req.body;
@@ -191,8 +194,7 @@ const rating = asyncHandler(async (req, res) => {
 
 module.exports = {
   createProduct,
-  getaProduct,
-  getAllProduct,
+  getProduct,
   updateProduct,
   deleteProduct,
   addToWishlist,

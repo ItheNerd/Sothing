@@ -5,6 +5,7 @@ const {
   generateRefreshToken,
 } = require("../config/token");
 const validateId = require("../utils/validateId");
+const jwt = require("jsonwebtoken");
 
 const registerUser = asyncHandler(async (req, res) => {
   try {
@@ -12,8 +13,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const findUser = await User.findOne({ email: email });
     if (!findUser) {
       const user = await User.create(req.body);
-      const accessToken = await generateAccessToken(user);
-      const refreshToken = await generateRefreshToken(user);
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
       const updatedUser = await User.findByIdAndUpdate(
         user._id,
         { refreshToken, accessToken },
@@ -55,9 +56,11 @@ const loginUser = asyncHandler(async (req, res) => {
       { refreshToken, accessToken },
       { new: true }
     );
+    console.log("Cookies: ", req.cookies);
     res.cookie("refreshToken", refreshToken, {
-      maxAge: new Date(Date.now() + 25892000000),
       httpOnly: true,
+      maxAge: 72 * 60 * 60 * 1000,
+      sameSite: "None",
     });
     res.json({
       _id: updatedUser._id,
@@ -75,19 +78,37 @@ const loginUser = asyncHandler(async (req, res) => {
 // needs to be  used with authHandler for user details
 const logoutUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
+  const refreshToken = req.cookies.refreshToken;
   validateId(_id);
   const user = await User.findById(_id);
+  if (!refreshToken) {
+    return res.status(401).json({ message: "Refresh token not found" });
+  }
   if (!user) {
-    throw new Error("User is not defined, check for expired tokens");
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    return res
+      .status(204)
+      .json({ message: "User is not defined, check for expired tokens" });
   }
   user.refreshToken = "";
   user.accessToken = "";
   await user.save();
-  res.json({ message: "Succesfully Logged Out" });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+  });
+  return res.status(204).json({ message: "Succesfully Logged Out" });
 });
 
 const handleRefreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
+  const { _id } = req.user;
+  validateId(_id);
   if (!refreshToken) {
     return res.status(401).json({ message: "Refresh token not found" });
   }
@@ -96,23 +117,26 @@ const handleRefreshToken = async (req, res) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    const user = await User.findById(decodedToken.userId);
+    if (_id.toString() !== decodedToken.id) {
+      console.log(_id.toString(), decodedToken.id);
+      throw new Error("token ID is not the same as userID");
+    }
+    const user = await User.findById(decodedToken.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    const accessToken = generateAccessToken(user);
+    const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
+    user.accessToken = newAccessToken;
     user.refreshToken = newRefreshToken;
     await user.save();
-
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
       maxAge: 72 * 60 * 60 * 1000, // 72 hours
     });
-    res.json({ accessToken });
+    res.json({ newAccessToken });
   } catch (err) {
-    res.status(401).json({ message: "Invalid refresh token" });
+    res.status(401).json({ message: err.message });
   }
 };
 
@@ -126,7 +150,9 @@ const getUserInfo = asyncHandler(async (req, res) => {
         "firstname lastname email mobile"
       );
     } else {
-      userData = await User.find().select("firstname lastname email mobile isBlocked role");
+      userData = await User.find().select(
+        "firstname lastname email mobile isBlocked role"
+      );
     }
     if (userData) {
       return res.json({
