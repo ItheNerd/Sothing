@@ -1,4 +1,4 @@
-const Product = require("../models/Product");
+const { Product, Category } = require("../models/Product");
 const User = require("../models/User");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
@@ -9,6 +9,10 @@ const createProduct = asyncHandler(async (req, res) => {
     if (req.body.title) {
       req.body.slug = slugify(req.body.title);
     }
+    const category = await Category.findOne({ title: categoryTitle });
+    if (!category) {
+      return res.status(404).json({ error: "Category not found" });
+    }
     const newProduct = await Product.create(req.body);
     res.json(newProduct);
   } catch (error) {
@@ -18,15 +22,19 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const id = req.params;
+  const { company } = req.user;
   validateId(id);
   try {
-    if (req.body.title) {
-      req.body.slug = slugify(req.body.title);
+    const product = await Product.findByIdAndUpdate(id);
+    if (product.company === company) {
+      if (req.body.title) {
+        req.body.slug = slugify(req.body.title);
+      }
+      const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
+        new: true,
+      });
+      res.json(updateProduct);
     }
-    const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
-      new: true,
-    });
-    res.json(updateProduct);
   } catch (error) {
     throw new Error(error);
   }
@@ -34,10 +42,14 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 const deleteProduct = asyncHandler(async (req, res) => {
   const id = req.params;
+  const { company } = req.user;
   validateId(id);
   try {
-    const deleteProduct = await Product.findOneAndDelete(id);
-    res.json(deleteProduct);
+    const product = await Product.findByIdAndUpdate(id);
+    if (product.company === company) {
+      const deleteProduct = await Product.findOneAndDelete(id);
+      res.json(deleteProduct);
+    }
   } catch (error) {
     throw new Error(error);
   }
@@ -45,14 +57,16 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 const getProduct = asyncHandler(async (req, res) => {
   const { id } = req.query;
-  if(!id){try {
-    validateId(id);
-    const product = await Product.findById(id);
-    res.json(product);
-  } catch (error) {
-    throw new Error(error);
-  }}else{
-    getAllProduct
+  if (id) {
+    try {
+      validateId(id);
+      const product = await Product.findById(id);
+      res.json(product);
+    } catch (error) {
+      throw new Error(error);
+    }
+  } else {
+    getAllProduct;
   }
 });
 
@@ -192,6 +206,23 @@ const rating = asyncHandler(async (req, res) => {
   }
 });
 
+const createCategory = asyncHandler(async (req, res) => {
+  const { title } = req.body;
+  try {
+    const existingCategory = await Category.findOne({ title });
+    if (existingCategory) {
+      return res.status(400).json({ error: "Category already exists" });
+    }
+
+    const category = await Category.create(req.body);
+    console.log(category);
+
+    res.status(201).json({ category: category });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 module.exports = {
   createProduct,
   getProduct,
@@ -199,4 +230,5 @@ module.exports = {
   deleteProduct,
   addToWishlist,
   rating,
+  createCategory,
 };

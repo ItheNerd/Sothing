@@ -29,6 +29,10 @@ var productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    company: {
+      type: String,
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,
@@ -44,10 +48,10 @@ var productSchema = new mongoose.Schema(
       },
     ],
     variants: [
-        {
-            variantType: String,
-            variantConfigurations: [], 
-        }
+      {
+        variantType: String,
+        variantConfigurations: [],
+      },
     ],
     tags: String,
     ratings: [
@@ -56,9 +60,26 @@ var productSchema = new mongoose.Schema(
         review: String,
         postedby: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
       },
-    ]
+    ],
   },
   { timestamps: true }
 );
+const Product = mongoose.model("Product", productSchema);
 
-module.exports = mongoose.model("Product", productSchema);
+const categorySchema = new mongoose.Schema(
+  {
+    title: {
+      index: true,
+      type: String,
+      required: true,
+      unique: true,
+    },
+    description: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+const Category = mongoose.model("Category", categorySchema);
+
+module.exports = { Product, Category };
