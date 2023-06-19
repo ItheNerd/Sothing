@@ -1,18 +1,52 @@
-const { Product, Category } = require("../models/Product");
+const { Product, Category, Brand, Subcategory } = require("../models/Product");
 const User = require("../models/User");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
 const validateId = require("../utils/validateId");
+const Company = require("../models/Company");
+const capitalize = require("../utils/capitalize");
+const { default: mongoose } = require("mongoose");
 
 const createProduct = asyncHandler(async (req, res) => {
   try {
     if (req.body.title) {
       req.body.slug = slugify(req.body.title);
     }
-    const category = await Category.findOne({ title: categoryTitle });
+    let brand = await Brand.findOne({ title: req.body.brand });
+    if (!brand) {
+      brand = await Brand.create({ title: req.body.brand });
+    }
+    const category = await Category.findOne({ title: req.body.category });
     if (!category) {
       return res.status(404).json({ error: "Category not found" });
     }
+    if (req.body.subCategory) {
+      const subCategory = await Category.findOne({
+        title: req.body.subCategory,
+      });
+      if (!subCategory) {
+        return res.status(404).json({ error: "Sub Category not found" });
+      }
+    }
+    const company = await Company.findOne({ title: req.body.company });
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+    req.body.brand = brand._id;
+    req.body.category = category._id;
+    req.body.company = company._id;
+
+    const existingProduct = await Product.findOne({
+      category: req.body.category,
+      company: req.body.company,
+      brand: req.body.brand,
+      slug: req.body.slug,
+    });
+
+    if (existingProduct) {
+      return res.status(400).json({ error: "Product already exists" });
+    }
+
     const newProduct = await Product.create(req.body);
     res.json(newProduct);
   } catch (error) {
@@ -36,22 +70,102 @@ const updateProduct = asyncHandler(async (req, res) => {
       res.json(updateProduct);
     }
   } catch (error) {
-    throw new Error(error);
+    throw new Error("Product Aldready exists");
   }
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
-  const id = req.params;
-  const { company } = req.user;
+  const { id } = req.params;
   validateId(id);
   try {
-    const product = await Product.findByIdAndUpdate(id);
-    if (product.company === company) {
-      const deleteProduct = await Product.findOneAndDelete(id);
-      res.json(deleteProduct);
-    }
+    const deleteProduct = await Product.findByIdAndDelete(id);
+    res.json(deleteProduct);
   } catch (error) {
     throw new Error(error);
+  }
+});
+
+const getAllProducts = asyncHandler(async (req, res) => {
+  try {
+    // Filtering
+    const queryObj = { ...req.query };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    const conversionFields = ["category", "brand", "subcategory"];
+    for (const field of conversionFields) {
+      if (queryObj[field]) {
+        const model = capitalize(field); // Model names are in capital
+        const document = await mongoose
+          .model(model)
+          .findOne({ title: queryObj[field] });
+        if (document) {
+          queryObj[field] = document._id;
+        }
+      }
+    }
+
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+    let query = Product.find(JSON.parse(queryStr));
+
+    // Sorting
+    if (req.query.sort) {
+      const sortOption = req.query.sort;
+      switch (sortOption) {
+        case "price_asc":
+          query = query.sort("price");
+          break;
+        case "price_desc":
+          query = query.sort("-price");
+          break;
+        case "popularity":
+          query = query.sort("-views -sold -ratings");
+          break;
+        case "rating":
+          query = query.sort("-ratings.star");
+          break;
+        case "newest":
+          query = query.sort("-createdAt");
+          break;
+        default:
+          query = query.sort("-createdAt");
+          break;
+      }
+    } else {
+      query = query.sort("-createdAt");
+    }
+
+    // Limiting the fields
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query = query.select(fields);
+    } else {
+      query = query.select("-__v");
+    }
+
+    // Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const productCount = await Product.countDocuments();
+    if (req.query.page && skip >= productCount) {
+      throw new Error("Page does not exist");
+    }
+
+    query = query.skip(skip).limit(limit);
+    const products = await query;
+    res.json({
+      page,
+      limit,
+      totalProducts: productCount,
+      totalPages: Math.ceil(productCount / limit),
+      products,
+    });
+  } catch (error) {
+    res.status(404).json({ error: "This page does not exist" });
   }
 });
 
@@ -66,51 +180,49 @@ const getProduct = asyncHandler(async (req, res) => {
       throw new Error(error);
     }
   } else {
-    getAllProduct;
+    getAllProducts(req, res);
   }
 });
 
-const getAllProduct = asyncHandler(async (req, res) => {
+const getRecommendedProduct = asyncHandler(async (req, res) => {
   try {
-    // Filtering
-    const queryObj = { ...req.query };
-    const excludeFields = ["page", "sort", "limit", "fields"];
-    excludeFields.forEach((el) => delete queryObj[el]);
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+    // get the current product ID
+    const { id } = req.query;
+    const currentProduct = await Product.findById(id);
 
-    let query = Product.find(JSON.parse(queryStr));
+    const limit = parseInt(req.query.limit) || 5;
 
-    // Sorting
+    const category = currentProduct.category; // it is actually the category id
+    const tags = currentProduct.tags;
 
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort("-createdAt");
+    // now we fetch 5 random products with the same category or tag
+    const similarProducts = await Product.find({
+      $or: [{ category: category }, { tags: { $in: tags } }],
+      _id: { $ne: id },
+    })
+      .limit(limit) // Limit the number of recommended products to 5
+      .select("price title images tags")
+      .lean(); // Convert Mongoose documents to plain JavaScript objects
+
+    res.json(similarProducts);
+  } catch (error) {
+    res.status(500).json({ error: "Unable to fetch recommended products" });
+  }
+});
+
+const searchProduct = asyncHandler(async (req, res) => {
+  try {
+    const { search } = req.query;
+    const product_data = await Product.find({
+      title: { $regex: ".*" + search + ".*", $options: "i" },
+    });
+    console.log(typeof product_data.length);
+    if (product_data.length === 0) {
+      return res.status(200).send({ message: "Products not found" });
     }
-
-    // limiting the fields
-
-    if (req.query.fields) {
-      const fields = req.query.fields.split(",").join(" ");
-      query = query.select(fields);
-    } else {
-      query = query.select("-__v");
-    }
-
-    // pagination
-
-    const page = req.query.page;
-    const limit = req.query.limit;
-    const skip = (page - 1) * limit;
-    query = query.skip(skip).limit(limit);
-    if (req.query.page) {
-      const productCount = await Product.countDocuments();
-      if (skip >= productCount) throw new Error("This Page does not exists");
-    }
-    const product = await query;
-    res.json(product);
+    return res
+      .status(200)
+      .send({ message: "Product details", data: product_data });
   } catch (error) {
     throw new Error(error);
   }
@@ -206,7 +318,7 @@ const rating = asyncHandler(async (req, res) => {
   }
 });
 
-const createCategory = asyncHandler(async (req, res) => {
+const createBrand = asyncHandler(async (req, res) => {
   const { title } = req.body;
   try {
     const existingCategory = await Category.findOne({ title });
@@ -226,9 +338,11 @@ const createCategory = asyncHandler(async (req, res) => {
 module.exports = {
   createProduct,
   getProduct,
+  getRecommendedProduct,
+  searchProduct,
   updateProduct,
   deleteProduct,
   addToWishlist,
   rating,
-  createCategory,
+  createBrand,
 };

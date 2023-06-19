@@ -19,6 +19,6 @@ router.get("/", authHandler, getUserInfo);
 router.delete("/", adminAuthHandler, deleteUser);
 router.put("/", authHandler, updateUser);
 router.put("/block", adminAuthHandler, blockUser);
-router.put("/refresh", authHandler, handleRefreshToken);
+router.put("/refresh", handleRefreshToken);
 
 module.exports = router;

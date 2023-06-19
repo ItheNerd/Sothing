@@ -10,7 +10,6 @@ var productSchema = new mongoose.Schema(
     slug: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
     },
     description: {
@@ -22,20 +21,28 @@ var productSchema = new mongoose.Schema(
       required: true,
     },
     category: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
       required: true,
     },
     brand: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Brand",
       required: true,
     },
     company: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Company",
       required: true,
+    },
+    subcategory: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subcategory",
     },
     quantity: {
       type: Number,
       required: true,
+      default: 0,
     },
     sold: {
       type: Number,
@@ -53,7 +60,7 @@ var productSchema = new mongoose.Schema(
         variantConfigurations: [],
       },
     ],
-    tags: String,
+    tags: [String],
     ratings: [
       {
         star: Number,
@@ -64,7 +71,19 @@ var productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const Product = mongoose.model("Product", productSchema);
+
+const brandSchema = new mongoose.Schema(
+  {
+    title: {
+      index: true,
+      type: String,
+      required: true,
+      unique: true,
+    },
+    details: [String],
+  },
+  { timestamps: true }
+);
 
 const categorySchema = new mongoose.Schema(
   {
@@ -80,6 +99,30 @@ const categorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-const Category = mongoose.model("Category", categorySchema);
 
-module.exports = { Product, Category };
+const subcategorySchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true,
+  },
+  description: String,
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: true,
+  },
+});
+
+productSchema.index(
+  { category: 1, company: 1, brand: 1, slug: 1 },
+  { unique: true }
+);
+
+subcategorySchema.index({ title: 1, category: 1 }, { unique: true });
+
+const Product = mongoose.model("Product", productSchema);
+const Brand = mongoose.model("Brand", brandSchema);
+const Category = mongoose.model("Category", categorySchema);
+const Subcategory = mongoose.model("Subcategory", subcategorySchema);
+
+module.exports = { Product, Category, Subcategory, Brand };

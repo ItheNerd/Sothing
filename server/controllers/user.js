@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const { User } = require("../models/User");
 const asyncHandler = require("express-async-handler");
 const {
   generateAccessToken,
@@ -24,6 +24,7 @@ const registerUser = asyncHandler(async (req, res) => {
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: true,
+        sameSite: "none",
         maxAge: 72 * 60 * 60 * 1000,
       });
 
@@ -49,33 +50,36 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if (user && (await user.isPasswordMatched(password))) {
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    const updatedUser = await User.findByIdAndUpdate(
-      user._id,
-      { refreshToken, accessToken },
-      { new: true }
-    );
-    console.log("Cookies: ", req.cookies);
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000,
-      sameSite: "None",
-    });
-    res.json({
-      _id: updatedUser._id,
-      firstname: updatedUser.firstname,
-      lastname: updatedUser.lastname,
-      email: updatedUser.email,
-      mobile: updatedUser.mobile,
-      accessToken: accessToken,
-    });
+    if (!user.isBlocked) {
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      const updatedUser = await User.findByIdAndUpdate(
+        user._id,
+        { refreshToken, accessToken },
+        { new: true }
+      );
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        maxAge: 72 * 60 * 60 * 1000,
+        sameSite: "None",
+        secure: true,
+      });
+      res.json({
+        _id: updatedUser._id,
+        firstname: updatedUser.firstname,
+        lastname: updatedUser.lastname,
+        email: updatedUser.email,
+        mobile: updatedUser.mobile,
+        accessToken: accessToken,
+      });
+    } else {
+      throw new Error("Account Blocked");
+    }
   } else {
     throw new Error("Invalid Credentials");
   }
 });
 
-// needs to be  used with authHandler for user details
 const logoutUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   const refreshToken = req.cookies.refreshToken;
@@ -107,8 +111,6 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const handleRefreshToken = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  const { _id } = req.user;
-  validateId(_id);
   if (!refreshToken) {
     return res.status(401).json({ message: "Refresh token not found" });
   }
@@ -117,13 +119,13 @@ const handleRefreshToken = async (req, res) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET
     );
-    if (_id.toString() !== decodedToken.id) {
-      console.log(_id.toString(), decodedToken.id);
-      throw new Error("token ID is not the same as userID");
-    }
     const user = await User.findById(decodedToken.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+    if (refreshToken !== user.refreshToken) {
+      console.log(refreshToken, user.refreshToken);
+      throw new Error("tokens do not match");
     }
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
@@ -132,7 +134,8 @@ const handleRefreshToken = async (req, res) => {
     await user.save();
     res.cookie("refreshToken", newRefreshToken, {
       httpOnly: true,
-      maxAge: 72 * 60 * 60 * 1000, // 72 hours
+      maxAge: 72 * 60 * 60 * 1000, // 72 hours,
+      sameSite: "None",
     });
     res.json({ newAccessToken });
   } catch (err) {
@@ -189,20 +192,60 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 const updateUser = asyncHandler(async (req, res) => {
   const { _id } = req.user;
+  const { country, state, city, locality, landmarks, pincode } =
+    req.body.address;
   validateId(_id);
   try {
-    const updatedUser = await User.findByIdAndUpdate(
+    let updatedUser = await User.findByIdAndUpdate(
       _id,
       {
-        firstname: req?.body?.firstname,
-        lastname: req?.body?.lastname,
-        email: req?.body?.email,
-        mobile: req?.body?.mobile,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email,
+        mobile: req.body.mobile,
       },
       {
         new: true,
       }
-    );
+    ).populate("address");
+
+    // Check if the user has an address
+    if (!updatedUser.address) {
+      // Create a new address and associate it with the user
+      const newAddress = await Address.create({
+        user: _id,
+        country,
+        state,
+        city,
+        locality,
+        landmarks,
+        pincode,
+      });
+
+      // Associate the new address with the user
+      updatedUser.address = newAddress._id;
+    } else {
+      // Check if the logged-in user matches the address owner
+      if (updatedUser.address.user.toString() !== _id.toString()) {
+        return res
+          .status(403)
+          .json({ error: "You are not authorized to update this address" });
+      }
+      // Update the address details
+      updatedUser.address.country = country;
+      updatedUser.address.state = state;
+      updatedUser.address.city = city;
+      updatedUser.address.locality = locality;
+      updatedUser.address.landmarks = landmarks;
+      updatedUser.address.pincode = pincode;
+
+      // Save the updated address
+      await updatedUser.address.save();
+    }
+
+    // Save the updated user
+    updatedUser = await updatedUser.save();
+
     res.json(updatedUser);
   } catch (error) {
     throw new Error(error);

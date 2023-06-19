@@ -1,6 +1,84 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+
+const wishlistSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    products: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
+  },
+  { timestamps: true }
+);
+
+const cartSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  products: [
+    {
+      product: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+      },
+      quantity: {
+        type: Number,
+        default: 1,
+      },
+      variant: {
+        type: String, // Update the data type according to your variant field
+        default: "",
+      },
+    },
+  ],
+  total: {
+    type: Number,
+    default: 0,
+  },
+});
+
+const addressSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  country: {
+    type: String,
+    required: true,
+  },
+  state: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  locality: {
+    type: String,
+    required: true,
+  },
+  landmarks: {
+    type: String,
+  },
+  pincode: {
+    type: Number,
+    required: true,
+  },
+});
+
 var userSchema = new mongoose.Schema(
   {
     firstname: {
@@ -31,11 +109,19 @@ var userSchema = new mongoose.Schema(
       default: false,
     },
     cart: {
-      type: Array,
-      default: [],
+      type: cartSchema,
+      default: {},
     },
-    address: [{ type: mongoose.Schema.Types.ObjectId, ref: "Address" }],
-    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
+    address: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Address",
+      },
+    ],
+    wishlist: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Wishlist",
+    },
     refreshToken: {
       type: String,
     },
@@ -75,4 +161,8 @@ userSchema.methods.createPasswordResetToken = async function () {
   return resettoken;
 };
 
-module.exports = mongoose.model("User", userSchema);
+const Wishlist = mongoose.model("Wishlist", wishlistSchema);
+const Cart = mongoose.model("Cart", cartSchema);
+const Address = mongoose.model("Address", addressSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = { User, Cart, Address, Wishlist };
