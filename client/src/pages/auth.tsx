@@ -2,9 +2,7 @@ import Login from "@/components/login";
 import Register from "@/components/register";
 import { useState } from "react";
 
-type Props = {};
-
-const Auth = (props: Props) => {
+const Auth = () => {
   const [isNewUser, setIsNewUser] = useState<boolean>(true);
 
   const handleToggle = () => {

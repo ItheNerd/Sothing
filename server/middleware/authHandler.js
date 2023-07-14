@@ -12,7 +12,6 @@ const authHandler = asyncHandler(async (req, res, next) => {
           process.env.ACCESS_TOKEN_SECRET
         );
         const user = await User.findById(decoded?.id);
-        // console.log("decoded:", decoded, " User:", user);
         if (
           accessToken === user.accessToken &&
           user.accessToken !== null &&

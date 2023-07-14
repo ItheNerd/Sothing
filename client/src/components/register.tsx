@@ -5,6 +5,7 @@ import { Icons } from "./icons";
 import { Checkbox } from "./ui/checkbox";
 
 interface Props {
+  isNewUser: boolean;
   handleToggle: () => void;
 }
 
@@ -15,7 +16,6 @@ const Register = (props: Props) => {
   async function onSubmit(event: React.SyntheticEvent) {
     event.preventDefault();
     setIsLoading(true);
-
     setTimeout(() => {
       setIsLoading(false);
     }, 3000);
@@ -31,11 +31,11 @@ const Register = (props: Props) => {
             className="absolute inset-0 h-full w-full object-cover opacity-80"
           />
 
-          <div className="hidden lg:relative lg:block lg:p-12">
+          <div className="hidden text-right lg:relative lg:block lg:p-12 ">
             <a className="block text-white" href="/">
               <span className="sr-only">Home</span>
               <svg
-                className="h-8 sm:h-10"
+                className="ml-auto h-8 sm:h-10"
                 viewBox="0 0 28 24"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg">
@@ -85,10 +85,12 @@ const Register = (props: Props) => {
                 Eligendi nam dolorum aliquam, quibusdam aperiam voluptatum.
               </p>
             </div>
-            <h1 className="text-2xl font-bold sm:text-3xl sm:flex justify-center">Sign-up.</h1>
+            <h1 className="justify-center text-2xl sm:flex sm:text-4xl">
+              Sign-up.
+            </h1>
             <form
               action="#"
-              className="mt-8 grid grid-cols-6 gap-6 justify-center mx-auto"
+              className="mx-auto mt-8 grid grid-cols-6 justify-center gap-6"
               onSubmit={onSubmit}>
               <div className="col-span-6 sm:col-span-3">
                 <label
@@ -128,17 +130,7 @@ const Register = (props: Props) => {
                   className="block text-sm font-medium text-gray-700">
                   Email
                 </label>
-
-                <Input
-                  placeholder="name@example.com"
-                  type="email"
-                  id="Email"
-                  name="email"
-                  autoComplete="email"
-                  autoCorrect="off"
-                  autoCapitalize="none"
-                  className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
-                />
+                <Input type="email" placeholder="Enter email" />
               </div>
 
               <div className="col-span-6 sm:col-span-3">
@@ -147,14 +139,7 @@ const Register = (props: Props) => {
                   className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-
-                <Input
-                  type="password"
-                  id="Password"
-                  name="password"
-                  placeholder="************"
-                  className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
-                />
+                <Input type="password" placeholder="Enter password" />
               </div>
 
               <div className="col-span-6 sm:col-span-3">
@@ -163,14 +148,7 @@ const Register = (props: Props) => {
                   className="block text-sm font-medium text-gray-700">
                   Password Confirmation
                 </label>
-
-                <Input
-                  type="password"
-                  id="PasswordConfirmation"
-                  name="password_confirmation"
-                  placeholder="************"
-                  className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
-                />
+                <Input type="password" placeholder="Confirm password" />
               </div>
 
               <div className="col-span-6">
@@ -189,7 +167,7 @@ const Register = (props: Props) => {
                 </div>
               </div>
 
-              <div className="col-span-6 justify-center flex">
+              <div className="col-span-6 flex justify-center">
                 <p className="text-sm text-gray-500">
                   By creating an account, you agree to our{" "}
                   <a href="#" className="text-gray-700 underline">
@@ -203,7 +181,7 @@ const Register = (props: Props) => {
                 </p>
               </div>
 
-              <div className="col-span-6 sm:flex sm:items-center sm:gap-4 sm:justify-center">
+              <div className="col-span-6 sm:flex sm:items-center sm:justify-center sm:gap-4">
                 <Button disabled={isLoading} size="wide">
                   {isLoading && (
                     <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -213,7 +191,9 @@ const Register = (props: Props) => {
 
                 <p className="mt-4 text-sm text-gray-500 sm:mt-0">
                   Already have an account?
-                  <a className="underline cursor-pointer" onClick={handleToggle}>
+                  <a
+                    className="cursor-pointer underline"
+                    onClick={handleToggle}>
                     {" "}
                     Login.{" "}
                   </a>

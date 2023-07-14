@@ -55,7 +55,7 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
-  const id = req.params;
+  const { id } = req.params;
   const { company } = req.user;
   validateId(id);
   try {
@@ -108,7 +108,10 @@ const getAllProducts = asyncHandler(async (req, res) => {
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    let query = Product.find(JSON.parse(queryStr));
+    let query = Product.find(JSON.parse(queryStr))
+      .populate("brand", "title")
+      .populate("category", "title")
+      .populate("company", "title");
 
     // Sorting
     if (req.query.sort) {
@@ -170,17 +173,17 @@ const getAllProducts = asyncHandler(async (req, res) => {
 });
 
 const getProduct = asyncHandler(async (req, res) => {
-  const { id } = req.query;
-  if (id) {
-    try {
-      validateId(id);
-      const product = await Product.findById(id);
-      res.json(product);
-    } catch (error) {
-      throw new Error(error);
-    }
-  } else {
-    getAllProducts(req, res);
+  const { id } = req.params;
+  try {
+    validateId(id);
+    const product = await Product.findById(id)
+      .populate("brand", "title")
+      .populate("category", "title")
+      .populate("company", "title");
+
+    res.json(product);
+  } catch (error) {
+    throw new Error(error);
   }
 });
 
@@ -216,7 +219,6 @@ const searchProduct = asyncHandler(async (req, res) => {
     const product_data = await Product.find({
       title: { $regex: ".*" + search + ".*", $options: "i" },
     });
-    console.log(typeof product_data.length);
     if (product_data.length === 0) {
       return res.status(200).send({ message: "Products not found" });
     }
@@ -337,6 +339,7 @@ const createBrand = asyncHandler(async (req, res) => {
 
 module.exports = {
   createProduct,
+  getAllProducts,
   getProduct,
   getRecommendedProduct,
   searchProduct,

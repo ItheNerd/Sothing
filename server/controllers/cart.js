@@ -13,13 +13,14 @@ const findUserCart = async (userId) => {
 
 // Add a product to the cart
 const addToCart = asyncHandler(async (req, res) => {
-  const { productId, quantity, variant } = req.body;
+  const { productId, quantity, variants_id } = req.body;
 
   if (!productId) {
     return res.status(400).json({ message: "productId is required" });
   }
 
   const product = await Product.findById(productId);
+  console.log(product.coverImageURL);
 
   if (!product) {
     return res.status(404).json({ message: "Product not found" });
@@ -28,7 +29,8 @@ const addToCart = asyncHandler(async (req, res) => {
   const cartItem = {
     product: product._id,
     quantity: quantity || 1,
-    variant: variant || "",
+    variants_id: variants_id || [],
+    image: product.coverImageURL,
   };
 
   let cart = await findUserCart(req.user._id);
@@ -39,7 +41,7 @@ const addToCart = asyncHandler(async (req, res) => {
 
   const existingCartItem = cart.products.find((item) => {
     return (
-      item.product._id.toString() === productId && item.variant === variant
+      item.product?._id.toString() === productId && item.variants === variants
     );
   });
 
@@ -114,7 +116,7 @@ const removeCartItem = asyncHandler(async (req, res) => {
   }
 
   const existingCartItemIndex = cart.products.findIndex(
-    (item) => item.product.toString() === productId
+    (item) => item.product._id.toString() === productId
   );
 
   if (existingCartItemIndex !== -1) {

@@ -1,14 +1,15 @@
-import illustration from "@/assets/illustration.svg"
-import { Button } from "@/components/ui/button";
+import illustration from "@/assets/illustration.svg";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function NotFound() {
+  const navigate = useNavigate();
   return (
     <section className="bg-base-100 dark:bg-gray-900 ">
       <div className="container mx-auto min-h-screen px-6 py-12 lg:flex lg:items-center lg:gap-12">
         <div className="wf-ull lg:w-1/2">
-          <p className="text-sm font-medium text-primary">
-            404 error
-          </p>
+          <p className="text-sm font-medium text-primary">404 error</p>
           <h1 className="mt-3 text-2xl font-semibold text-gray-800 dark:text-white md:text-3xl">
             Page not found
           </h1>
@@ -18,7 +19,10 @@ export default function NotFound() {
           </p>
 
           <div className="mt-6 flex items-center gap-x-3">
-            <button className="btn btn-ghost">
+            <Button
+              variant="ghost"
+              className="btn"
+              onClick={() => navigate(-1)}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -34,9 +38,16 @@ export default function NotFound() {
               </svg>
 
               <span>Go back</span>
-            </button>
+            </Button>
 
-            <Button className="btn btn-wide">Take me home</Button>
+            <Link
+              to={"/"}
+              className={cn(
+                buttonVariants({ variant: "default", size: "wide" }),
+                "btn-wide btn"
+              )}>
+              Take me home
+            </Link>
           </div>
         </div>
 

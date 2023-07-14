@@ -9,6 +9,7 @@ const {
   updateUser,
   blockUser,
   handleRefreshToken,
+  resetPassword,
 } = require("../controllers/user");
 const { authHandler, adminAuthHandler } = require("../middleware/authHandler");
 
@@ -20,5 +21,6 @@ router.delete("/", adminAuthHandler, deleteUser);
 router.put("/", authHandler, updateUser);
 router.put("/block", adminAuthHandler, blockUser);
 router.put("/refresh", handleRefreshToken);
+router.put("/reset", authHandler, resetPassword);
 
 module.exports = router;

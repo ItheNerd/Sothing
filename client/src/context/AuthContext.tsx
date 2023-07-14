@@ -1,156 +1,224 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import jwt_decode from "jwt-decode";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import {
+  loginSchema,
+  registerSchema,
+  userSchema,
+} from "@/lib/schemas/authSchemas";
+import { authAPI } from "@/lib/api/authAPI";
+import { z } from "zod";
+import axiosAuthInstance from "@/lib/api/authAPI";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
-const AuthContext = createContext();
+type User = z.infer<typeof userSchema>;
+
+export type RegisterTypes = z.infer<typeof registerSchema>;
+
+export type LoginTypes = z.infer<typeof loginSchema>;
+
+type AuthContextType = {
+  user: User | null;
+  setUser: (user: User | null) => void;
+  accessToken: string | null;
+  setAccessToken: (accessToken: string | null) => void;
+  registerUser: (req: RegisterTypes) => Promise<void>;
+  loginUser: (req: LoginTypes) => Promise<void>;
+  logoutUser: () => Promise<void>;
+  refreshToken: () => Promise<void>;
+};
+
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export default AuthContext;
 
-export const AuthProvider = ({ children }) => {
-  const [accessToken, setAccessToken] = useState(() =>
-    localStorage.getItem("accessToken")
-      ? localStorage.getItem("accessToken")
-      : null
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [accessToken, setAccessToken] = useState<string | null>(
+    () => localStorage.getItem("accessToken") || null
   );
-  const [user, setUser] = useState(() =>
-    localStorage.getItem("accessToken")
-      ? jwt_decode(localStorage.getItem("accessToken")).firstname
-      : null
-  );
-  const [userInfo, setUserInfo] = useState(() =>
-    localStorage.getItem("accessToken")
-      ? jwt_decode(localStorage.getItem("accessToken"))
-      : null
+  const [user, setUser] = useState<User | null>(() =>
+    accessToken ? jwt_decode<User>(accessToken) : null
   );
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const registerUser = async (e) => {
-    e.preventDefault();
-    let response = await fetch(`${baseURL}/api/user/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        firstname: e.target.name.value,
-        password: e.target.password.value,
-        email: e.target.email.value,
-      }),
-    });
+  const registerUser = async (req: RegisterTypes) => {
+    try {
+      const response = await authAPI.signup(req);
 
-    let data = await response.json();
-    if (response.status === 201) {
-      toast.success("Registration Succesful", {
-        position: "bottom-left",
-        autoClose: 1000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+      let { _id, firstname, lastname, email, accessToken } = userSchema.parse(
+        response.data
+      );
+
+      const updatedLastname = lastname || "";
+
+      toast({
+        variant: "default",
+        title: "Registration Successful!",
+        description: "Redirecting to the home page...",
       });
-      setAccessToken(data.accessToken);
-      setUser(jwt_decode(data.accessToken).firstname);
-      setUserInfo(jwt_decode(data.accessToken));
-      localStorage.setItem("accessToken", data.accessToken);
+
+      setAccessToken(accessToken);
+      setUser({
+        _id,
+        firstname,
+        lastname: updatedLastname,
+        email,
+        accessToken,
+      });
+      localStorage.setItem("accessToken", accessToken);
+
       setTimeout(() => navigate("/"), 1000);
-    } else {
-      toast.error(data.msg, {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: `${error.response.data.message}`,
+        action: (
+          <ToastAction altText="Try again" onClick={() => navigate(0)}>
+            Try again
+          </ToastAction>
+        ),
       });
+      setTimeout(() => navigate(0), 1000);
+      console.log(error);
     }
   };
 
-  let loginUser = async (e) => {
-    e.preventDefault();
-    let response = await fetch(`${baseURL}/api/user/login/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: e.target.email.value,
-        password: e.target.password.value,
-      }),
-    });
-    let data = await response.json();
+  const loginUser = async (req: LoginTypes) => {
+    try {
+      const response = await authAPI.login(req);
 
-    if (response.status === 200) {
-      toast.success("Login Succesful", {
-        position: "bottom-left",
-        autoClose: 1000,
-        hideProgressBar: true,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+      const { _id, firstname, lastname, email, accessToken } = userSchema.parse(
+        response.data
+      );
+
+      const updatedLastname = lastname || "";
+
+      toast({
+        variant: "default",
+        title: "Login Successful!",
+        description: "Redirecting to the home page...",
       });
-      setAccessToken(data.accessToken);
-      setUser(jwt_decode(data.accessToken).firstname);
-      setUserInfo(jwt_decode(data.accessToken));
-      localStorage.setItem("accessToken", data.accessToken);
+
+      setAccessToken(accessToken);
+      setUser({
+        _id,
+        firstname,
+        lastname: updatedLastname,
+        email,
+        accessToken,
+      });
+      localStorage.setItem("accessToken", accessToken);
+
       setTimeout(() => navigate("/"), 1000);
-    } else {
-      toast.error("Incorrect Credentials", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: `${error.response.data.message}`,
+        action: (
+          <ToastAction altText="Try again" onClick={() => navigate(0)}>
+            Try again
+          </ToastAction>
+        ),
       });
+      setTimeout(() => navigate(0), 1000);
+      console.log(error);
     }
   };
 
-  let logoutUser = () => {
-    setAccessToken(null);
-    setUser(null);
-    localStorage.removeItem("accessToken");
-    document.cookie =
-      "refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    navigate("/login");
+  const logoutUser = async () => {
+    try {
+      if (!user) {
+        throw new Error("Not logged in");
+      }
+      await authAPI.logout();
+      setAccessToken(null);
+      setUser(null);
+      localStorage.removeItem("accessToken");
+      axiosAuthInstance.defaults.headers["Authorization"] = "";
+      navigate("/");
+    } catch (error: any) {
+      if (error.response?.status === 500 || error.response?.status === 401) {
+        try {
+          const response = await authAPI.refreshToken();
+          const newAccessToken = response.data.newAccessToken;
+          setAccessToken(newAccessToken);
+          axiosAuthInstance.defaults.headers[
+            "Authorization"
+          ] = `Bearer ${newAccessToken}`;
+          await authAPI.logout();
+          setAccessToken(null);
+          setUser(null);
+          localStorage.removeItem("accessToken");
+          navigate("/");
+        } catch (error: any) {
+          toast({
+            variant: "destructive",
+            title: `${error.response.data.message}`,
+            action: (
+              <ToastAction altText="Try again" onClick={() => logoutUser()}>
+                Try again
+              </ToastAction>
+            ),
+          });
+        }
+      } else {
+        console.log(error.message);
+      }
+    }
   };
 
-  let contextData = {
-    user: user,
-    userInfo: userInfo,
-    accessToken: accessToken,
-    setAccessToken: setAccessToken,
-    setUser: setUser,
-    setUserInfo: setUserInfo,
-    registerUser: registerUser,
-    loginUser: loginUser,
-    logoutUser: logoutUser,
+  const refreshToken = async () => {
+    try {
+      const response = await authAPI.refreshToken();
+      const newAccessToken = response.data.newAccessToken;
+
+      setAccessToken(newAccessToken);
+      localStorage.setItem("accessToken", newAccessToken);
+
+      axiosAuthInstance.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${newAccessToken}`;
+    } catch (error: any) {
+      console.log(error.response.data.message);
+    }
   };
 
   useEffect(() => {
     setAccessToken(localStorage.getItem("accessToken"));
     if (accessToken) {
-      setUser(jwt_decode(localStorage.getItem("accessToken")).firstname);
-      setUserInfo(jwt_decode(localStorage.getItem("accessToken")));
-      console.log("this", accessToken);
+      setUser(jwt_decode<User>(localStorage.getItem("accessToken") || ""));
     }
     setLoading(false);
-  }, [accessToken, loading]);
+  }, [accessToken]);
+
+  const contextData: AuthContextType = {
+    user,
+    setUser,
+    accessToken,
+    setAccessToken,
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshToken,
+  };
 
   return (
     <AuthContext.Provider value={contextData}>
       {loading ? null : children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = (): AuthContextType => {
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return authContext;
 };

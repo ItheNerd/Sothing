@@ -71,6 +71,7 @@ const loginUser = asyncHandler(async (req, res) => {
         email: updatedUser.email,
         mobile: updatedUser.mobile,
         accessToken: accessToken,
+        refreshToken: refreshToken,
       });
     } else {
       throw new Error("Account Blocked");
@@ -95,7 +96,7 @@ const logoutUser = asyncHandler(async (req, res) => {
       sameSite: "None",
     });
     return res
-      .status(204)
+      .status(200)
       .json({ message: "User is not defined, check for expired tokens" });
   }
   user.refreshToken = "";
@@ -106,7 +107,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     secure: true,
     sameSite: "None",
   });
-  return res.status(204).json({ message: "Succesfully Logged Out" });
+  return res.status(200).json({ message: "Succesfully Logged Out" });
 });
 
 const handleRefreshToken = async (req, res) => {
@@ -124,7 +125,7 @@ const handleRefreshToken = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     if (refreshToken !== user.refreshToken) {
-      console.log(refreshToken, user.refreshToken);
+      console.log("refrrrshToken:", refreshToken, user.refreshToken);
       throw new Error("tokens do not match");
     }
     const newAccessToken = generateAccessToken(user);
@@ -136,8 +137,10 @@ const handleRefreshToken = async (req, res) => {
       httpOnly: true,
       maxAge: 72 * 60 * 60 * 1000, // 72 hours,
       sameSite: "None",
+      secure: true,
     });
-    res.json({ newAccessToken });
+    console.log("refreshToken:", refreshToken, user.refreshToken);
+    res.json({ newAccessToken, newRefreshToken });
   } catch (err) {
     res.status(401).json({ message: err.message });
   }
@@ -277,6 +280,34 @@ const blockUser = asyncHandler(async (req, res) => {
   }
 });
 
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      user.password = password;
+      await user.save();
+      if (email) {
+        res.status(201).json({
+          message: "password successfully reset for e-commerce",
+          _id: user._id,
+          firstname: user.firstname,
+          email: user.email,
+        });
+      }
+    } else {
+      res.status(400).json({
+        message: "password reset unsuccseful",
+        _id: user._id,
+        firstname: user.firstname,
+        email: user.email,
+      });
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -286,4 +317,5 @@ module.exports = {
   deleteUser,
   updateUser,
   blockUser,
+  resetPassword,
 };

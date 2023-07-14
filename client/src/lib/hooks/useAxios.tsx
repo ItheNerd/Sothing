@@ -1,43 +1,103 @@
-import { useContext } from "react";
-import AuthContext from "@/context/AuthContext";
-import axios from "axios";
-import jwt_decode from "jwt-decode";
-import dayjs from "dayjs";
+import { useState, useEffect } from "react";
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from "axios";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+const baseURL: string = import.meta.env.VITE_API_BASE_URL;
 
-export function useAxios() {
-  const { authTokens, setUser, setAuthTokens } = useContext(AuthContext);
+type ErrorResponse = {
+  message: string;
+};
 
-  const axiosInstance = axios.create({
-    baseURL,
-    headers: { Authorization: `Bearer ${authTokens?.access}` },
+type UseAxiosConfig = {
+  subURL: string;
+  headers?: Record<string, string>;
+};
+
+type UseAxiosResult = {
+  api: AxiosInstance;
+};
+
+const useAxios = ({ subURL, headers }: UseAxiosConfig): UseAxiosResult => {
+  const { accessToken, setAccessToken, setUser, refreshToken } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { toast } = useToast();
+
+  // appending subURL to baseURL
+  const url = `${baseURL}/${subURL}`;
+
+  const api = axios.create({
+    baseURL: url,
+    headers: {
+      ...(headers || {}),
+      Authorization: accessToken ? `Bearer ${accessToken}` : undefined,
+    },
   });
 
-  axiosInstance.interceptors.request.use(async (req) => {
-    const user = jwt_decode(authTokens.access);
-    const isExpired = dayjs.unix(user.exp).diff(dayjs()) < 1;
+  api.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError<ErrorResponse>) => {
+      const originalRequest: AxiosRequestConfig | undefined = error.config;
 
-    if (!isExpired) {
-      console.log("token was not expired!");
-      return req;
+      if (!originalRequest) {
+        throw error;
+      }
+      if (
+        error.response?.status === 401 ||
+        (error.response?.status === 500 &&
+          error.response.data.message === "jwt expired")
+      ) {
+        // Check if token refreshing is already in progress
+        if (!isRefreshing) {
+          setIsRefreshing(true);
+          console.log("refreshing JWT tokens");
+          try {
+            // Refresh the token
+            await refreshToken();
+            setIsRefreshing(false);
+            console.log("refresed JWT tokens");
+            // Retry the original request with the new token
+            return api(originalRequest);
+          } catch (refreshError) {
+            setIsRefreshing(false);
+            setAccessToken(null);
+            setUser(null);
+            localStorage.removeItem("accessToken");
+            api.defaults.headers["Authorization"] = "";
+            throw refreshError;
+          }
+        } else {
+          // Wait for token refreshing to complete and then retry the original request
+          return new Promise((resolve, reject) => {
+            const intervalId = setInterval(() => {
+              if (!isRefreshing) {
+                clearInterval(intervalId);
+                resolve(api(originalRequest));
+              }
+            }, 100);
+          });
+        }
+      }
+
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: error.response?.data.message || "Request failed.",
+        action: <ToastAction altText="Try again">Try again</ToastAction>,
+      });
+
+      return Promise.reject(error);
     }
-    console.log("token was expired!");
+  );
 
-    const response = await axios.post(`${baseURL}/user/refresh/`, {
-      refresh: authTokens.refresh,
-    });
+  useEffect(() => {
+    api.defaults.headers.common["Authorization"] = accessToken
+      ? `Bearer ${accessToken}`
+      : undefined;
+  }, [accessToken, api]);
 
-    console.log(response.data);
+  return { api };
+};
 
-    localStorage.setItem("authTokens", JSON.stringify(response.data));
-
-    setAuthTokens(response.data);
-    setUser(jwt_decode(response.data.access));
-
-    req.headers.Authorization = `Bearer ${response.data.access}`;
-    return req;
-  });
-
-  return axiosInstance;
-}
+export default useAxios;

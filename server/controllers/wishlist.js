@@ -1,3 +1,5 @@
+const { Wishlist } = require("../models/User");
+
 // Create wishlist
 const createWishlist = asyncHandler(async (req, res) => {
   const { _id } = req.user;
@@ -58,3 +60,10 @@ const removeProductFromWishlist = asyncHandler(async (req, res) => {
 
   res.json({ wishlist });
 });
+
+module.exports = {
+  createWishlist,
+  getUserWishlist,
+  addProductToWishlist,
+  removeProductFromWishlist,
+};

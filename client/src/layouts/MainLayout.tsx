@@ -1,6 +1,19 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
+import Footer from "@/components/footer";
+import Navbar from "@/components/navbar";
+import { ReactNode } from "react";
 
-export default function MainLayout({ children }) {
-  return (<><Navbar/><div className="mx-auto max-w-screen-2xl px-10 antialiased">{children}</div><Footer/></>);
+interface MainLayoutInterface {
+  children: ReactNode;
+}
+
+export default function MainLayout({ children }: MainLayoutInterface) {
+  return (
+    <>
+      <Navbar />
+      <div className="relative mx-auto max-w-screen-xl px-4 py-8 antialiased">
+        {children}
+      </div>
+      <Footer />
+    </>
+  );
 }

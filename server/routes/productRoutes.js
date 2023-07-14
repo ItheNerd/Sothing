@@ -8,6 +8,7 @@ const {
   getProduct,
   getRecommendedProduct,
   searchProduct,
+  getAllProducts,
 } = require("../controllers/product");
 const {
   createCategory,
@@ -17,7 +18,8 @@ const { authHandler, adminAuthHandler } = require("../middleware/authHandler");
 const router = express.Router();
 
 router.post("/", authHandler, createProduct);
-router.get("/", getProduct);
+router.get("/listings", getAllProducts);
+router.get("/listings/:id", getProduct);
 router.get("/recommendations", getRecommendedProduct);
 router.get("/search", searchProduct);
 router.put("/wishlist", authHandler, addToWishlist);

@@ -1,22 +1,43 @@
-import React from "react";
+import React, { useRef } from "react";
+import { useIntersectionObserver } from "usehooks-ts";
 
-interface Props {
+interface ImageProps {
   src: string;
-  width: number;
-  height: number;
   alt: string;
-  className: string;
+  height?: number;
+  width?: number;
+  fallback?: React.ReactNode;
+  className?: string;
 }
 
-const Image: React.FC<Props> = ({ src, width, height, alt, className }) => {
+const Image: React.FC<ImageProps> = ({
+  src,
+  alt,
+  fallback,
+  className,
+  width,
+  height,
+}) => {
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const entry = useIntersectionObserver(imageRef, {});
+
+  const isVisible = !!entry?.isIntersecting;
+  console.log({ isVisible });
   return (
-    <img
-      src={src}
-      width={width}
-      height={height}
-      alt={alt}
-      className={className}
-    />
+    <>
+      {isVisible ? (
+        <img
+          src={src}
+          alt={alt}
+          className={className}
+          ref={imageRef}
+          width={width}
+          height={height}
+        />
+      ) : (
+        fallback || <span className="loading loading-spinner loading-sm"></span>
+      )}
+    </>
   );
 };
 
