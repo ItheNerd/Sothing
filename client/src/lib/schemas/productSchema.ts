@@ -1,36 +1,36 @@
-import { z } from "zod";
+import z from "zod";
 
-const ImageSchema = z.object({
-  public_id: z.string(),
-  url: z.string(),
-  _id: z.string(),
-});
-
-const RatingSchema = z.object({
-  star: z.number(),
-  review: z.string(),
-  postedby: z.string(),
-  _id: z.string(),
-});
-
-const BrandSchema = z.object({
-  _id: z.string(),
-  title: z.string(),
-});
-
-const CategorySchema = z.object({
-  _id: z.string(),
-  title: z.string(),
-});
-
-const CompanySchema = z.object({
-  _id: z.string(),
-  title: z.string(),
-});
-
-const VariantSchema = z.object({
+const VariantCombinationSchema = z.object({
   variantType: z.string(),
-  variantConfigurations: z.array(z.string()),
+  variantValue: z.string(),
+  _id: z.string(),
+});
+
+const PriceSchema = z.object({
+  amount: z.number(),
+  unit: z.string(),
+});
+
+const VariantConfigSchema = z.object({
+  price: PriceSchema,
+  name: z.string(),
+  sq_id: z.string(),
+  variantCombination: z.array(VariantCombinationSchema),
+  quantity: z.number(),
+  images: z.array(z.string()),
+  rating: z.number(),
+  _id: z.string(),
+});
+
+const InfoTitleSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+});
+
+const VariantTableSchema = z.object({
+  variantType: z.string(),
+  variantValues: z.array(z.string()),
+  _id: z.string(),
 });
 
 const ProductSchema = z.object({
@@ -38,19 +38,16 @@ const ProductSchema = z.object({
   title: z.string(),
   slug: z.string(),
   description: z.string(),
-  price: z.number(),
-  category: CategorySchema,
-  brand: BrandSchema,
-  company: CompanySchema,
-  quantity: z.number(),
-  sold: z.number(),
-  images: z.array(ImageSchema),
+  variantConfig: z.array(VariantConfigSchema),
+  company: InfoTitleSchema,
+  brand: InfoTitleSchema,
+  category: InfoTitleSchema,
   coverImageURL: z.string(),
-  variants: z.array(VariantSchema),
   tags: z.array(z.string()),
-  ratings: z.array(RatingSchema),
-  createdAt: z.string(), // Change to date if possible
-  updatedAt: z.string(), // Change to date if possible
+  rating: z.number(),
+  variantTable: z.array(VariantTableSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
 const GetProductListSchema = z.object({
@@ -61,4 +58,20 @@ const GetProductListSchema = z.object({
   products: z.array(ProductSchema),
 });
 
-export { GetProductListSchema, ProductSchema, ImageSchema, RatingSchema };
+const ProductRecommendationSchema = z.object({
+  _id: z.string(),
+  title: z.string(),
+  coverImageURL: z.string(),
+  tags: z.array(z.string()),
+});
+
+export {
+  GetProductListSchema,
+  ProductRecommendationSchema,
+  ProductSchema,
+  InfoTitleSchema,
+  VariantConfigSchema,
+  PriceSchema,
+  VariantCombinationSchema,
+  VariantTableSchema,
+};

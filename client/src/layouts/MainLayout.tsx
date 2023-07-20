@@ -10,7 +10,7 @@ export default function MainLayout({ children }: MainLayoutInterface) {
   return (
     <>
       <Navbar />
-      <div className="relative mx-auto max-w-screen-xl px-4 py-8 antialiased">
+      <div className="relative mx-auto max-w-screen-2xl px-4 py-8 antialiased">
         {children}
       </div>
       <Footer />

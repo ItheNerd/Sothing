@@ -1,17 +1,15 @@
 import useAxios from "../hooks/useAxios";
 import { z } from "zod";
 import {
-  ImageSchema,
   GetProductListSchema,
+  ProductRecommendationSchema,
   ProductSchema,
-  RatingSchema,
 } from "../schemas/productSchema";
 
 // Define the types using the Zod schemas
-type ImageType = z.infer<typeof ImageSchema>;
-type RatingType = z.infer<typeof RatingSchema>;
 type ProductType = z.infer<typeof ProductSchema>;
 type GetProductListType = z.infer<typeof GetProductListSchema>;
+type ProductRecommendationType = z.infer<typeof ProductRecommendationSchema>;
 
 // Custom hook for product API
 const useProductAPI = () => {
@@ -20,7 +18,7 @@ const useProductAPI = () => {
   const getRecommendedProducts = async (
     id: string,
     limit: number = 5
-  ): Promise<ProductType[]> => {
+  ): Promise<ProductRecommendationType[]> => {
     try {
       const response = await productAPI.get("/recommended", {
         params: { id, limit },

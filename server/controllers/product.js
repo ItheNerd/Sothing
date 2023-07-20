@@ -1,4 +1,4 @@
-const { Product, Category, Brand, Subcategory } = require("../models/Product");
+const { Product, Category, Brand } = require("../models/Product");
 const User = require("../models/User");
 const asyncHandler = require("express-async-handler");
 const slugify = require("slugify");
@@ -6,49 +6,64 @@ const validateId = require("../utils/validateId");
 const Company = require("../models/Company");
 const capitalize = require("../utils/capitalize");
 const { default: mongoose } = require("mongoose");
+const generateSqId = require("../config/sqId");
 
+// Create a new product
 const createProduct = asyncHandler(async (req, res) => {
   try {
-    if (req.body.title) {
-      req.body.slug = slugify(req.body.title);
-    }
-    let brand = await Brand.findOne({ title: req.body.brand });
-    if (!brand) {
-      brand = await Brand.create({ title: req.body.brand });
-    }
-    const category = await Category.findOne({ title: req.body.category });
-    if (!category) {
-      return res.status(404).json({ error: "Category not found" });
-    }
-    if (req.body.subCategory) {
-      const subCategory = await Category.findOne({
-        title: req.body.subCategory,
-      });
-      if (!subCategory) {
-        return res.status(404).json({ error: "Sub Category not found" });
-      }
-    }
-    const company = await Company.findOne({ title: req.body.company });
-    if (!company) {
-      return res.status(404).json({ error: "Company not found" });
-    }
-    req.body.brand = brand._id;
-    req.body.category = category._id;
-    req.body.company = company._id;
+    const { company, brand, category, title, variantConfig, ...productData } =
+      req.body;
 
-    const existingProduct = await Product.findOne({
-      category: req.body.category,
-      company: req.body.company,
-      brand: req.body.brand,
-      slug: req.body.slug,
+    const slug = slugify(title, { lower: true });
+
+    // Get the company ID based on the provided company name
+    const companyData = await Company.findOne({ title: company });
+    if (!companyData) {
+      throw new Error(`Company '${company}' does not exist.`);
+    }
+    const companyId = companyData._id;
+
+    // Get the brand ID based on the provided brand name
+    let brandData = await Brand.findOne({ title: brand });
+    if (!brandData) {
+      brandData = Brand.create({ title: req.body.brand });
+    }
+    const brandId = brandData._id;
+
+    // Get the category ID based on the provided category name
+    const categoryData = await Category.findOne({ title: category });
+    if (!categoryData) {
+      throw new Error(`Category '${category}' does not exist.`);
+    }
+    const categoryId = categoryData._id;
+
+    const newVariantConfig = variantConfig.map((variant) => {
+      const sq_id = generateSqId(slug, company, brand, variant.name);
+      return {
+        sq_id: sq_id,
+        ...variant,
+      };
     });
 
-    if (existingProduct) {
-      return res.status(400).json({ error: "Product already exists" });
-    }
+    const newProduct = new Product({
+      ...productData,
+      company: companyId,
+      brand: brandId,
+      category: categoryId,
+      slug: slug,
+      title: title,
+      variantConfig: newVariantConfig,
+    });
 
-    const newProduct = await Product.create(req.body);
-    res.json(newProduct);
+    await newProduct.save();
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: newProduct._id },
+      {},
+      { new: true }
+    );
+
+    res.status(201).json(updatedProduct);
   } catch (error) {
     throw new Error(error);
   }
@@ -56,19 +71,15 @@ const createProduct = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { company } = req.user;
   validateId(id);
   try {
-    const product = await Product.findByIdAndUpdate(id);
-    if (product.company === company) {
-      if (req.body.title) {
-        req.body.slug = slugify(req.body.title);
-      }
-      const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
-        new: true,
-      });
-      res.json(updateProduct);
+    if (req.body.title) {
+      req.body.slug = slugify(req.body.title);
     }
+    const updateProduct = await Product.findOneAndUpdate({ id }, req.body, {
+      new: true,
+    });
+    res.json(updateProduct);
   } catch (error) {
     throw new Error("Product Aldready exists");
   }
@@ -189,7 +200,6 @@ const getProduct = asyncHandler(async (req, res) => {
 
 const getRecommendedProduct = asyncHandler(async (req, res) => {
   try {
-    // get the current product ID
     const { id } = req.query;
     const currentProduct = await Product.findById(id);
 
@@ -204,7 +214,7 @@ const getRecommendedProduct = asyncHandler(async (req, res) => {
       _id: { $ne: id },
     })
       .limit(limit) // Limit the number of recommended products to 5
-      .select("price title images tags")
+      .select("title coverImageURL tags")
       .lean(); // Convert Mongoose documents to plain JavaScript objects
 
     res.json(similarProducts);
@@ -338,13 +348,13 @@ const createBrand = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  createProduct,
-  getAllProducts,
-  getProduct,
-  getRecommendedProduct,
-  searchProduct,
+  createProduct, //
+  getAllProducts, //
+  getProduct, //
+  getRecommendedProduct, //
+  searchProduct, //
   updateProduct,
-  deleteProduct,
+  deleteProduct, //
   addToWishlist,
   rating,
   createBrand,

@@ -6,6 +6,7 @@ const corsOptions = require("./config/corsOrigin");
 const configureRoutes = require("./config/routesConfig");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
+const rebuildIndexes = require("./config/reBuildIndex");
 
 require("dotenv").config();
 
@@ -18,12 +19,14 @@ app.use(cookieParser());
 app.use(express.json());
 
 mongoose
-  .connect(`${process.env.DB_URI}/sothingsDB`, {
+  .connect(`${process.env.DB_URI}/sothings`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
   .then(() => {
     console.log(`Connected to MongoDB`);
+    // Call the index rebuilding function
+    rebuildIndexes();
     configureRoutes(app);
     const PORT = process.env.PORT || 8000;
     app.listen(PORT, () => {

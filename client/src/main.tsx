@@ -36,7 +36,7 @@ createRoot(document.getElementById("root")!).render(
         <AuthProvider>
           <CartSheetProvider>
             <App />
-            <ReactQueryDevtools initialIsOpen={false} />
+            {/* <ReactQueryDevtools initialIsOpen={false} /> */}
           </CartSheetProvider>
         </AuthProvider>
       </Router>

@@ -20,12 +20,12 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CartButton from "./cartButton";
-import { ShoppingCart } from "lucide-react";
-import { ImageSchema, ProductSchema } from "@/lib/schemas/productSchema";
+import { Heart, ShoppingCart } from "lucide-react";
+import { ProductSchema } from "@/lib/schemas/productSchema";
 import { cn } from "@/lib/utils";
+import { Separator } from "../ui/separator";
 
 type ProductType = z.infer<typeof ProductSchema>;
-type ImageType = z.infer<typeof ImageSchema>;
 
 type ProductPriceProps = HTMLAttributes<HTMLDivElement> & {
   currency?: string;
@@ -33,7 +33,7 @@ type ProductPriceProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 type ProductListingImageType = {
-  images: ImageType[];
+  images?: any[];
   coverImageURL: string;
 };
 
@@ -49,16 +49,14 @@ interface ProductDetailProps {
   product: ProductType;
 }
 
-function FAQAccordion() {
+function ProductFAQ() {
   return (
     <section className="my-8">
-      <header className="w-max px-2 py-4 font-semibold underline">
+      <header className="w-max px-2 py-4 font-semibold  hover:underline">
         FAQ Section
       </header>
-      <Accordion
-        type="single"
-        collapsible
-        className="w-full rounded-lg border px-4">
+      <Accordion type="single" collapsible className="w-full px-4">
+        <Separator />
         <AccordionItem value="item-1">
           <AccordionTrigger>Is it accessible?</AccordionTrigger>
           <AccordionContent>
@@ -84,24 +82,30 @@ function FAQAccordion() {
   );
 }
 
-function Rating({ rating }: { rating: number }) {
+function ProductRating({ rating }: { rating: number }) {
+  const maxRating = 5; // Maximum number of stars
+
   return (
-    <div className="rating">
-      <input name="rating-2" className="mask mask-star-2 bg-orange-400" />
-      <input name="rating-2" className="mask mask-star-2 bg-orange-400" />
-      <input name="rating-2" className="mask mask-star-2 bg-orange-400" />
-      <input name="rating-2" className="mask mask-star-2 bg-orange-400" />
-      <input name="rating-2" className="mask mask-star-2 bg-orange-400" />
+    <div className="rating rating-sm">
+      {Array.from({ length: maxRating }).map((_, index) => (
+        <input
+          key={index}
+          name="rating-5"
+          className={cn(
+            "form-radio mask mask-star-2 pointer-events-none border border-gray-200",
+            rating >= index + 1 ? "bg-gray-700" : "bg-gray-200"
+          )}
+        />
+      ))}
     </div>
   );
 }
 
-const Price = forwardRef(function ProductPrice(
+const ProductPrice = forwardRef(function ProductPrice(
   { currency = "INR", price = 0, className, ...props }: ProductPriceProps,
   ref: Ref<HTMLDivElement>
 ) {
   const formattedPrice = price !== undefined ? price : "";
-
   return (
     <div
       ref={ref}
@@ -119,7 +123,7 @@ const Price = forwardRef(function ProductPrice(
   );
 });
 
-function Description({ description }: { description: string }) {
+function ProductDescription({ description }: { description: string }) {
   return (
     <div className="mt-4">
       <div className="prose max-w-none">
@@ -141,9 +145,12 @@ const SelectInput: React.FC<SelectInputProps> = ({
   onChange,
 }) => {
   return (
-    <fieldset className="mt-4">
-      <legend className="mb-1 text-sm font-medium">{legend}</legend>
-      <div className="flex flex-wrap gap-1">
+    <fieldset className="mt-4 flex items-center gap-4">
+      <span className="mb-1 inline-flex h-8 items-center justify-center rounded-lg border bg-gray-200 p-4 text-sm font-medium">
+        <legend>{legend}</legend>
+      </span>
+      <Separator orientation="vertical" className="h-5 bg-black" />
+      <div className="flex flex-wrap gap-2">
         {options.map((option) => (
           <label className="cursor-pointer" key={option}>
             <input
@@ -154,7 +161,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
               checked={selectedOption === option}
               onChange={() => onChange(option)}
             />
-            <span className="group inline-flex h-8 w-full min-w-[2rem] items-center justify-center rounded-full border p-4 text-xs font-medium peer-checked:bg-black peer-checked:text-white">
+            <span className="group inline-flex h-8 w-full min-w-[2rem] items-center justify-center rounded-lg border p-4 text-xs font-medium peer-checked:bg-black peer-checked:text-white">
               {option}
             </span>
           </label>
@@ -164,7 +171,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
   );
 };
 
-function QuantityInput() {
+function ProductQuantityInput() {
   const { register } = useForm();
   return (
     <div>
@@ -183,7 +190,7 @@ function QuantityInput() {
 
 function ProductListingImage({
   coverImageURL,
-  images,
+  images = ["yo"],
 }: ProductListingImageType) {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
@@ -198,7 +205,7 @@ function ProductListingImage({
           <img
             key={image._id}
             alt={`Image ${image.public_id}`}
-            src={image.url}
+            src="image"
             className="aspect-square w-full rounded-xl object-cover"
           />
         ))}
@@ -207,21 +214,25 @@ function ProductListingImage({
   );
 }
 
-function ProductDetail({ product }: ProductDetailProps) {
-  const {
-    title,
-    ratings,
-    price,
-    description,
-    coverImageURL,
-    images,
-    variants,
-  } = product;
+const ProductTags = ({ tags }: { tags: string[] }) => {
+  return (
+    <div>
+      {tags.map((tag) => (
+        <Badge variant="outline" className="capitalize mr-1" >
+          {tag}
+        </Badge>
+      ))}
+    </div>
+  );
+};
+
+function ProductVariantForm({ product }: { product: ProductType }) {
+  const { variantTable, variantConfig } = product;
   const [variantOption, setVariantOption] = useState("");
-  const form = useForm<z.infer<typeof ProductSchema>>({
+  const form = useForm<ProductType>({
     resolver: zodResolver(ProductSchema),
   });
-  const onSubmit = (data: z.infer<typeof ProductSchema>) => {
+  const onSubmit = (data: ProductType) => {
     console.log(data);
   };
 
@@ -230,56 +241,66 @@ function ProductDetail({ product }: ProductDetailProps) {
   };
 
   return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        {variantTable.map((variant) => (
+          <FormField
+            key={variant.variantType}
+            name={variant.variantType}
+            render={() => (
+              <FormItem>
+                <FormControl>
+                  <SelectInput
+                    legend={variant.variantType}
+                    options={variant.variantValues}
+                    name={variant.variantType}
+                    selectedOption={variantOption}
+                    onChange={handleVariantChange}
+                  />
+                </FormControl>
+                <FormDescription />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ))}
+        <div className="mt-8 flex items-center justify-between">
+          <div className="flex gap-4">
+            <ProductQuantityInput />
+            <CartButton>
+              <ShoppingCart className="mr-4" size="20" />
+              Add to Cart
+            </CartButton>
+          </div>
+          <Button variant="secondary" className="group hover:bg-rose-200">
+            <Heart className="duration-75 ease-in group-hover:text-rose-500" />
+          </Button>
+        </div>
+        <ProductFAQ />
+      </form>
+    </Form>
+  );
+}
+
+function ProductDetail({ product }: ProductDetailProps) {
+  const { title, description, coverImageURL, tags } = product;
+
+  return (
     <section>
       <div className="relative mx-auto max-w-screen-xl px-4 py-8">
         <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
-          <ProductListingImage coverImageURL={coverImageURL} images={images} />
+          <ProductListingImage coverImageURL={coverImageURL} />
           <div className="sticky top-0">
-            <Badge variant="outline">Pre Order</Badge>
-
+            <ProductTags tags={tags} />
             <div className="mt-8 flex justify-between">
               <div className="max-w-[35ch] space-y-2">
                 <h1 className="text-xl sm:text-2xl">{title}</h1>
-                <Rating rating={ratings[0].star} />
+                <ProductRating rating={3} />
               </div>
-
-              <Price price={price} />
+              <ProductPrice price={20} />
             </div>
-            <Description description={description} />
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)}>
-                {variants.map((variant) => (
-                  <FormField
-                    key={variant.variantType}
-                    name="variants"
-                    control={form.control}
-                    render={() => (
-                      <FormItem>
-                        <FormControl>
-                          <SelectInput
-                            legend={variant.variantType}
-                            options={variant.variantConfigurations}
-                            name={variant.variantType}
-                            selectedOption={variantOption}
-                            onChange={handleVariantChange}
-                          />
-                        </FormControl>
-                        <FormDescription />
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                ))}
-                <div className="mt-8 flex gap-4">
-                  <QuantityInput />
-                  <CartButton>
-                    <ShoppingCart className="mr-4" size="20" />
-                    Add to Cart
-                  </CartButton>
-                </div>
-                <FAQAccordion />
-              </form>
-            </Form>
+            <ProductDescription description={description} />
+            <ProductVariantForm product={product} />
           </div>
         </div>
       </div>

@@ -14,6 +14,7 @@ const findUserCart = async (userId) => {
 // Add a product to the cart
 const addToCart = asyncHandler(async (req, res) => {
   const { productId, quantity, variants_id } = req.body;
+  const { _id } = req.user;
 
   if (!productId) {
     return res.status(400).json({ message: "productId is required" });
@@ -33,10 +34,10 @@ const addToCart = asyncHandler(async (req, res) => {
     image: product.coverImageURL,
   };
 
-  let cart = await findUserCart(req.user._id);
+  let cart = await findUserCart(_id);
 
   if (!cart) {
-    cart = await Cart.create({ user: req.user._id });
+    cart = await Cart.create({ user: _id });
   }
 
   const existingCartItem = cart.products.find((item) => {

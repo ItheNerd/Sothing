@@ -112,10 +112,10 @@ var userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // cart: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Cart",
-    // },
+    cart: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Cart",
+    },
     // wishlist: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: "Wishlist",
