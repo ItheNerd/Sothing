@@ -174,7 +174,7 @@ export const ProductCollection: React.FC<ProductCollectionProps> = ({
         description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. dolor sit amet, consectetur adipiscing elit dolor sit amet, consectetur adipiscing elit"
       />
       <Separator className="my-6"/>
-      <div className="mt-4 lg:mt-8 lg:grid lg:grid-cols-4 lg:items-start lg:gap-8">
+      <div className="mt-4 lg:mt-8 lg:grid lg:grid-cols-5 lg:items-start lg:gap-8">
         <div className="block space-y-4">
           <SortCollapsible />
 
@@ -195,8 +195,8 @@ export const ProductCollection: React.FC<ProductCollectionProps> = ({
           </div>
         </div>
 
-        <div className="lg:col-span-3">
-          <ul className="grid gap-4 py-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="lg:col-span-4">
+          <ul className="grid gap-4 py-4 sm:grid-cols-2 lg:grid-cols-4">
             {children}
           </ul>
         </div>

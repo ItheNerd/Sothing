@@ -19,8 +19,8 @@ const listing = () => {
 
   return (
     <MainLayout>
-      {/* <ProductDetail product={product!} /> */}
-      <ProductVariantForm product={product!} />
+      <ProductDetail product={product!} />
+      {/* <ProductVariantForm product={product!} /> */}
     </MainLayout>
   );
 };

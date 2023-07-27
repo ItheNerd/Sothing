@@ -59,8 +59,8 @@ const navbar = (props: Props) => {
   return (
     <nav className="relative bg-white dark:bg-gray-800">
       <div className="container mx-auto px-6 py-3">
-        <div className="flex flex-row items-center justify-between">
-          <div className="flex items-center justify-center">
+        <div className="max-w-screen flex flex-row items-center justify-between">
+          <div className="flex w-full max-w-xs items-center justify-center">
             <h1 className="font-calsans text-xl">
               <Link to="/">Sothings.</Link>
             </h1>
@@ -69,7 +69,7 @@ const navbar = (props: Props) => {
           <NavigationMenu className="hidden md:flex">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
@@ -104,7 +104,7 @@ const navbar = (props: Props) => {
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Brands</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                     {components.map((component) => (
@@ -122,7 +122,7 @@ const navbar = (props: Props) => {
                 <NavigationMenuLink
                   className={navigationMenuTriggerStyle()}
                   asChild>
-                  <a href="/docs">Documentation </a>
+                  <Link to="/products">Explore </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
@@ -135,7 +135,7 @@ const navbar = (props: Props) => {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+              <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                   <li className="row-span-3">
@@ -169,7 +169,7 @@ const navbar = (props: Props) => {
               </NavigationMenuContent>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+              <NavigationMenuTrigger>Brands</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
                   {components.map((component) => (
@@ -187,7 +187,7 @@ const navbar = (props: Props) => {
               <NavigationMenuLink
                 className={navigationMenuTriggerStyle()}
                 asChild>
-                <a href="/docs">Documentation </a>
+                <Link to="/products">Explore </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>

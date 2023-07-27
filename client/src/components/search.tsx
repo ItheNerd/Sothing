@@ -37,10 +37,15 @@ export function CommandMenu() {
   return (
     <>
       <Input
-        className="mx-4 w-56 hover:bg-base-200 hover:placeholder:text-black duration-500 placeholder:font-medium"
+        className="mx-4 w-full max-w-xs mr-auto hover:bg-base-200 hover:placeholder:text-black duration-500 placeholder:font-medium"
         placeholder=" Press ⌘K "
         onFocus={() => setOpen((open) => !open)}
       />
+      {/* <Input
+        className="mx-4 w-40 md: hover:bg-base-200 hover:placeholder:text-black duration-500 placeholder:font-medium"
+        placeholder=" Press ⌘K "
+        onFocus={() => setOpen((open) => !open)}
+      /> */}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <Command className="rounded-lg border shadow-md">
           <CommandInput placeholder="Type a command or search..." />

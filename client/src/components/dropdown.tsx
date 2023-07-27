@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useContext } from "react";
-import { useNavigate } from "react-router";
 import AuthContext from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Link } from "react-router-dom";
@@ -33,7 +32,6 @@ import { Link } from "react-router-dom";
 export function DropdownMenuDemo() {
   const { user, logoutUser } = useContext(AuthContext);
   const { isOpen, setIsOpen } = useCart();
-  const navigate = useNavigate();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -59,7 +57,7 @@ export function DropdownMenuDemo() {
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <Link to="/user/settings">Settings</Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

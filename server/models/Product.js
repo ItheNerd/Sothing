@@ -249,6 +249,7 @@ productSchema.index(
 );
 
 const Product = mongoose.model("Product", productSchema);
+const VariantInventory = mongoose.model("VariantInventory", variantInventorySchema);
 const Brand = mongoose.model("Brand", brandSchema);
 const Category = mongoose.model("Category", categorySchema);
 
@@ -257,6 +258,6 @@ module.exports = {
   Brand,
   Category,
   variantValueSchema,
-  variantInventorySchema,
+  VariantInventory,
   variantTypeSchema,
 };

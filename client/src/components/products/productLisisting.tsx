@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { HTMLAttributes, Ref, forwardRef, useState } from "react";
+import { HTMLAttributes, Ref, forwardRef, useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import {
@@ -9,23 +9,24 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Input } from "../ui/input";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "../ui/form";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import CartButton from "./cartButton";
 import { Heart, ShoppingCart } from "lucide-react";
-import { ProductSchema } from "@/lib/schemas/productSchema";
+import {
+  ProductSchema,
+  VariantConfigSchema,
+} from "@/lib/schemas/productSchema";
 import { cn } from "@/lib/utils";
 import { Separator } from "../ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 type ProductType = z.infer<typeof ProductSchema>;
+type VariantConfigType = z.infer<typeof VariantConfigSchema>;
 
 type ProductPriceProps = HTMLAttributes<HTMLDivElement> & {
   currency?: string;
@@ -47,6 +48,17 @@ interface SelectInputProps {
 
 interface ProductDetailProps {
   product: ProductType;
+}
+
+interface ProductVariantFormProps {
+  product: ProductType;
+  onVariantSelect: (variantId: string | null) => void;
+}
+
+function getVariantCombinationString(variantConfig: VariantConfigType): string {
+  return variantConfig.variantCombination
+    .map((variant) => `${variant.variantType}: ${variant.variantValue}`)
+    .join(", ");
 }
 
 function ProductFAQ() {
@@ -201,11 +213,11 @@ function ProductListingImage({
       />
 
       <div className="grid grid-cols-2 gap-4 lg:mt-4">
-        {images.map((image) => (
+        {images.map((image, index) => (
           <img
-            key={image._id}
-            alt={`Image ${image.public_id}`}
-            src="image"
+            key={index}
+            alt={`Image ${index + 1}`}
+            src={image}
             className="aspect-square w-full rounded-xl object-cover"
           />
         ))}
@@ -218,7 +230,7 @@ const ProductTags = ({ tags }: { tags: string[] }) => {
   return (
     <div>
       {tags.map((tag) => (
-        <Badge variant="outline" className="capitalize mr-1" >
+        <Badge variant="outline" className="mr-1 capitalize">
           {tag}
         </Badge>
       ))}
@@ -226,81 +238,119 @@ const ProductTags = ({ tags }: { tags: string[] }) => {
   );
 };
 
-function ProductVariantForm({ product }: { product: ProductType }) {
-  const { variantTable, variantConfig } = product;
-  const [variantOption, setVariantOption] = useState("");
-  const form = useForm<ProductType>({
-    resolver: zodResolver(ProductSchema),
-  });
-  const onSubmit = (data: ProductType) => {
-    console.log(data);
+function ProductVariantSelector({
+  product,
+  onVariantSelect,
+}: ProductVariantFormProps) {
+  const { variantConfig } = product;
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(
+    variantConfig[0]._id
+  );
+
+  const handleVariantChange = (selectedVariantId: string) => {
+    setSelectedVariant(selectedVariantId);
+    onVariantSelect(selectedVariantId); // Send selected variant ID back to ProductDetail
   };
 
-  const handleVariantChange = (option: string) => {
-    setVariantOption(option);
-  };
+  useEffect(() => {
+    handleVariantChange(variantConfig[0]._id);
+  }, []);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        {variantTable.map((variant) => (
-          <FormField
-            key={variant.variantType}
-            name={variant.variantType}
-            render={() => (
-              <FormItem>
-                <FormControl>
-                  <SelectInput
-                    legend={variant.variantType}
-                    options={variant.variantValues}
-                    name={variant.variantType}
-                    selectedOption={variantOption}
-                    onChange={handleVariantChange}
-                  />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        ))}
-        <div className="mt-8 flex items-center justify-between">
-          <div className="flex gap-4">
-            <ProductQuantityInput />
-            <CartButton>
-              <ShoppingCart className="mr-4" size="20" />
-              Add to Cart
-            </CartButton>
-          </div>
-          <Button variant="secondary" className="group hover:bg-rose-200">
-            <Heart className="duration-75 ease-in group-hover:text-rose-500" />
-          </Button>
-        </div>
-        <ProductFAQ />
-      </form>
-    </Form>
+    <TooltipProvider>
+      <div className="mt-4 flex gap-4 ">
+        {variantConfig.map((variant) => (
+          <Tooltip>
+            <TooltipTrigger
+              key={variant._id}
+              onClick={() => handleVariantChange(variant._id)}
+              className={cn(
+                "group relative inline-flex h-16 min-w-[2rem] max-w-fit items-center justify-center overflow-hidden rounded-lg border-2 text-xs font-medium",
+                variant.quantity === 0 &&
+                  "border-red-500 before:absolute before:-inset-1 before:bg-red-400 before:bg-opacity-30"
+              )}>
+              <input
+                type="radio"
+                name="variant"
+                id={`option_${variant._id}`}
+                className="peer sr-only"
+                checked={selectedVariant === variant._id}
+              />
+              <img
+                src={variant.images[0]}
+                alt={`Image for ${variant.name}`}
+                className="max-h-full"
+              />
+              <p className="flex h-full w-full items-center justify-center px-4 peer-checked:bg-black peer-checked:text-white">
+                {variant.name}
+              </p>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{getVariantCombinationString(variant)}</p>
+            </TooltipContent>
+          </Tooltip>
+        ))}{" "}
+      </div>
+    </TooltipProvider>
+  );
+}
+
+function ProductCartandWishList() {
+  return (
+    <div className="mt-8 flex items-center justify-between">
+      <div className="flex gap-4">
+        <ProductQuantityInput />
+        <CartButton>
+          <ShoppingCart className="mr-4" size="20" />
+          Add to Cart
+        </CartButton>
+      </div>
+      <Button variant="secondary" className="group hover:bg-rose-200">
+        <Heart className="duration-75 ease-in group-hover:text-rose-500" />
+      </Button>
+    </div>
   );
 }
 
 function ProductDetail({ product }: ProductDetailProps) {
   const { title, description, coverImageURL, tags } = product;
+  const [selectedVariant, setSelectedVariant] =
+    useState<VariantConfigType | null>(null);
+  const handleVariantSelect = (variantId: string | null) => {
+    const selectedConfig = product.variantConfig.find(
+      (config) => config._id === variantId
+    );
+    setSelectedVariant(selectedConfig || null);
+  };
 
   return (
     <section>
       <div className="relative mx-auto max-w-screen-xl px-4 py-8">
         <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
-          <ProductListingImage coverImageURL={coverImageURL} />
+          <ProductListingImage
+            coverImageURL={coverImageURL}
+            images={selectedVariant?.images}
+          />
           <div className="sticky top-0">
             <ProductTags tags={tags} />
             <div className="mt-8 flex justify-between">
               <div className="max-w-[35ch] space-y-2">
                 <h1 className="text-xl sm:text-2xl">{title}</h1>
-                <ProductRating rating={3} />
+                <h3>{selectedVariant?.name}</h3>
+                <ProductRating rating={selectedVariant?.rating || 0} />
               </div>
-              <ProductPrice price={20} />
+              <ProductPrice
+                price={selectedVariant?.price.amount || 0}
+                currency={selectedVariant?.price.unit || "INR"}
+              />
             </div>
             <ProductDescription description={description} />
-            <ProductVariantForm product={product} />
+            <ProductVariantSelector
+              product={product}
+              onVariantSelect={handleVariantSelect}
+            />
+            <ProductCartandWishList />
+            <ProductFAQ />
           </div>
         </div>
       </div>

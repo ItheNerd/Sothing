@@ -11,8 +11,8 @@ const { authHandler } = require("../middleware/authHandler");
 
 router.post("/", authHandler, addToCart);
 router.get("/", authHandler, getCart);
-router.put("/:productId", authHandler, updateCartItem);
-router.delete("/:productId", authHandler, removeCartItem);
+router.put("/:itemId", authHandler, updateCartItem);
+router.delete("/:itemId", authHandler, removeCartItem);
 router.delete("/", authHandler, clearCart); // Clear the entire cart
 
 module.exports = router;

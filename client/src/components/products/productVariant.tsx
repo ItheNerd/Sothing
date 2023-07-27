@@ -5,7 +5,8 @@ import { useCallback, useState } from "react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import _ from "lodash";
-``
+import { cn } from "@/lib/utils";
+``;
 type ProductType = z.infer<typeof ProductSchema>;
 
 const ProductVariantForm: React.FC<{ product: ProductType }> = ({
@@ -22,13 +23,11 @@ const ProductVariantForm: React.FC<{ product: ProductType }> = ({
       if (selectedVariants[variantType] === undefined) return false;
 
       const availableOptions = getVariantOptionsAvailable();
-      //   console.log("hello", availableOptions);
 
-      return availableOptions.map(
+      return !availableOptions.some(
         (option) =>
-          (option.VariantType === variantType &&
-            option.VariantValue.includes(variantValue)) ||
-          console.log("somehting", option.VariantValue)
+          option.VariantType === variantType &&
+          option.VariantValue.includes(variantValue)
       );
     },
     [selectedVariants]
@@ -156,11 +155,11 @@ const ProductVariantForm: React.FC<{ product: ProductType }> = ({
                     disabled={isOptionDisabled(variant.variantType, value)}
                   />
                   <Badge
-                    className={`m-1 h-8 ${
+                    className={cn(`m-1 h-8 ${
                       selectedVariants[variant.variantType] === value
                         ? "bg-black text-white"
                         : "bg-gray-200 text-black"
-                    }`}>
+                    }`, isOptionDisabled(variant.variantType, value) && "border-2 border-red-400")}>
                     {value + ` ` + variant.variantType}
                   </Badge>
                 </label>
