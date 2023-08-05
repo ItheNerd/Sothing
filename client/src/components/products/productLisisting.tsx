@@ -9,7 +9,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Input } from "../ui/input";
-import { useForm } from "react-hook-form";
 import CartButton from "./cartButton";
 import { Heart, ShoppingCart } from "lucide-react";
 import {
@@ -37,14 +36,6 @@ type ProductListingImageType = {
   images?: any[];
   coverImageURL: string;
 };
-
-interface SelectInputProps {
-  legend: string;
-  options: string[];
-  name: string;
-  selectedOption: string;
-  onChange: (option: string) => void;
-}
 
 interface ProductDetailProps {
   product: ProductType;
@@ -149,57 +140,6 @@ function ProductDescription({ description }: { description: string }) {
   );
 }
 
-const SelectInput: React.FC<SelectInputProps> = ({
-  legend,
-  options,
-  name,
-  selectedOption,
-  onChange,
-}) => {
-  return (
-    <fieldset className="mt-4 flex items-center gap-4">
-      <span className="mb-1 inline-flex h-8 items-center justify-center rounded-lg border bg-gray-200 p-4 text-sm font-medium">
-        <legend>{legend}</legend>
-      </span>
-      <Separator orientation="vertical" className="h-5 bg-black" />
-      <div className="flex flex-wrap gap-2">
-        {options.map((option) => (
-          <label className="cursor-pointer" key={option}>
-            <input
-              type="radio"
-              name={name}
-              id={`option_${option}`}
-              className="peer sr-only"
-              checked={selectedOption === option}
-              onChange={() => onChange(option)}
-            />
-            <span className="group inline-flex h-8 w-full min-w-[2rem] items-center justify-center rounded-lg border p-4 text-xs font-medium peer-checked:bg-black peer-checked:text-white">
-              {option}
-            </span>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
-};
-
-function ProductQuantityInput() {
-  const { register } = useForm();
-  return (
-    <div>
-      <label className="sr-only">Qty</label>
-      <Input
-        type="number"
-        id="quantity"
-        min="1"
-        defaultValue="1"
-        className="input w-12 rounded border-gray-200 py-3 text-center text-xs [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-        {...register("quantity")}
-      />
-    </div>
-  );
-}
-
 function ProductListingImage({
   coverImageURL,
   images = ["yo"],
@@ -229,8 +169,8 @@ function ProductListingImage({
 const ProductTags = ({ tags }: { tags: string[] }) => {
   return (
     <div>
-      {tags.map((tag) => (
-        <Badge variant="outline" className="mr-1 capitalize">
+      {tags.map((tag, index) => (
+        <Badge key={index} variant="outline" className="mr-1 capitalize">
           {tag}
         </Badge>
       ))}
@@ -260,7 +200,7 @@ function ProductVariantSelector({
     <TooltipProvider>
       <div className="mt-4 flex gap-4 ">
         {variantConfig.map((variant) => (
-          <Tooltip>
+          <Tooltip key={variant._id}>
             <TooltipTrigger
               key={variant._id}
               onClick={() => handleVariantChange(variant._id)}
@@ -275,6 +215,7 @@ function ProductVariantSelector({
                 id={`option_${variant._id}`}
                 className="peer sr-only"
                 checked={selectedVariant === variant._id}
+                readOnly
               />
               <img
                 src={variant.images[0]}
@@ -289,18 +230,52 @@ function ProductVariantSelector({
               <p>{getVariantCombinationString(variant)}</p>
             </TooltipContent>
           </Tooltip>
-        ))}{" "}
+        ))}
       </div>
     </TooltipProvider>
   );
 }
 
-function ProductCartandWishList() {
+function ProductCartandWishList({
+  productId,
+  variantConfigId,
+}: {
+  productId: string;
+  variantConfigId: string;
+}) {
+  const [quantity, setQuantity] = useState<number>(1);
+
+  const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Get the value from the input and parse it as a number
+    const newQuantity = parseInt(event.target.value);
+
+    // Check if the value is a valid number and greater than 0
+    if (!isNaN(newQuantity) && newQuantity > 0) {
+      setQuantity(newQuantity);
+    } else {
+      // If an invalid value is entered, set the quantity to 1 (or any default value you want)
+      setQuantity(1);
+    }
+  };
+
   return (
     <div className="mt-8 flex items-center justify-between">
       <div className="flex gap-4">
-        <ProductQuantityInput />
-        <CartButton>
+        <div>
+          <label className="sr-only">Qty</label>
+          <Input
+            type="number"
+            id="quantity"
+            min="1"
+            value={quantity}
+            onChange={handleQuantityChange}
+            className="input w-12 rounded border-gray-200 py-3 text-center text-xs [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+          />
+        </div>
+        <CartButton
+          productId={productId}
+          variantConfigId={variantConfigId}
+          quantity={quantity}>
           <ShoppingCart className="mr-4" size="20" />
           Add to Cart
         </CartButton>
@@ -313,7 +288,7 @@ function ProductCartandWishList() {
 }
 
 function ProductDetail({ product }: ProductDetailProps) {
-  const { title, description, coverImageURL, tags } = product;
+  const { title, description, coverImageURL, tags, _id } = product;
   const [selectedVariant, setSelectedVariant] =
     useState<VariantConfigType | null>(null);
   const handleVariantSelect = (variantId: string | null) => {
@@ -349,7 +324,10 @@ function ProductDetail({ product }: ProductDetailProps) {
               product={product}
               onVariantSelect={handleVariantSelect}
             />
-            <ProductCartandWishList />
+            <ProductCartandWishList
+              productId={_id}
+              variantConfigId={selectedVariant?._id || ""}
+            />
             <ProductFAQ />
           </div>
         </div>

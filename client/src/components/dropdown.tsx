@@ -24,14 +24,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useContext } from "react";
-import AuthContext from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Link } from "react-router-dom";
 
 export function DropdownMenuDemo() {
-  const { user, logoutUser } = useContext(AuthContext);
-  const { isOpen, setIsOpen } = useCart();
+  const { user, logoutUser } = useAuth();
+  const { isOpen: isCartOpen, setIsOpen: setIsCartOpen } = useCart();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,7 +46,7 @@ export function DropdownMenuDemo() {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onClick={() => setIsOpen(!isOpen)}>
+          <DropdownMenuItem onClick={() => setIsCartOpen(!isCartOpen)}>
             <ShoppingCart className="mr-2 h-4 w-4" />
             <span>Cart</span>
           </DropdownMenuItem>

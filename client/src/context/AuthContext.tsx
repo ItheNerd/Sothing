@@ -39,9 +39,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [accessToken, setAccessToken] = useState<string | null>(
     () => localStorage.getItem("accessToken") || null
   );
-  const [user, setUser] = useState<User | null>(() =>
-    accessToken ? jwt_decode<User>(accessToken) : null
-  );
+  const [user, setUser] = useState<User | null>(() => {
+    if (accessToken) {
+      const decodedToken = jwt_decode<any>(accessToken);
+      return {
+        _id: decodedToken.id,
+        firstname: decodedToken.firstname,
+        email: decodedToken.email,
+        accessToken: accessToken,
+        lastname: decodedToken.lastname,
+      };
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -71,8 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         email,
         accessToken,
       });
+      console.log(user);
       localStorage.setItem("accessToken", accessToken);
-
       setTimeout(() => navigate("/"), 1000);
     } catch (error: any) {
       toast({
@@ -99,12 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       const updatedLastname = lastname || "";
 
-      toast({
-        variant: "default",
-        title: "Login Successful!",
-        description: "Redirecting to the home page...",
-      });
-
       setAccessToken(accessToken);
       setUser({
         _id,
@@ -113,9 +117,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         email,
         accessToken,
       });
+      
       localStorage.setItem("accessToken", accessToken);
-
-      setTimeout(() => navigate("/"), 1000);
+      toast({
+        variant: "default",
+        title: "Login Successful!",
+        description: "Redirecting to the home page...",
+      });
+      setTimeout(() => navigate(-1), 1000);
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -141,6 +150,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setUser(null);
       localStorage.removeItem("accessToken");
       axiosAuthInstance.defaults.headers["Authorization"] = "";
+      toast({
+        variant: "default",
+        title: "Logout Successful!",
+        description: "Redirecting to the home page...",
+      });
       navigate("/");
     } catch (error: any) {
       if (error.response?.status === 500 || error.response?.status === 401) {

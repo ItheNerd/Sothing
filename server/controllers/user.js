@@ -125,7 +125,7 @@ const handleRefreshToken = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
     if (refreshToken !== user.refreshToken) {
-      console.log("refrrrshToken:", refreshToken, user.refreshToken);
+      console.log("refreshToken:", refreshToken, user.refreshToken);
       throw new Error("tokens do not match");
     }
     const newAccessToken = generateAccessToken(user);

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { z } from "zod";
 import { loginSchema, registerSchema } from "../schemas/authSchemas";
+import { clearCookies } from "../utils";
 
 export type RegisterTypes = z.infer<typeof registerSchema>;
 export type LoginTypes = z.infer<typeof loginSchema>;
@@ -20,20 +21,39 @@ axiosAuthInstance.interceptors.request.use((config) => {
   return config;
 });
 
-const login = (data: LoginTypes) => {
-  return axiosAuthInstance.post("/user/login", data);
+const login = async (data: LoginTypes) => {
+  return await axiosAuthInstance.post("/user/login", data);
 };
 
-const signup = (data: RegisterTypes) => {
-  return axiosAuthInstance.post("/user/register", data);
+const signup = async (data: RegisterTypes) => {
+  return await axiosAuthInstance.post("/user/register", data);
 };
 
-const logout = () => {
-  return axiosAuthInstance.get("/user/logout");
+const logout = async () => {
+  try {
+    // Make the API call to log out
+    return await axiosAuthInstance.get("/user/logout");
+  } catch (error) {
+    // If the request returns an error, clear cookies and localStorage
+    clearCookies();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    console.log("Error during logout:", error);
+    throw error; // Re-throw the error so it can be handled by the calling code
+  }
 };
 
-export const refreshToken = () => {
-  return axiosAuthInstance.put("/user/refresh");
+const refreshToken = async () => {
+  try {
+    return await axiosAuthInstance.put("/user/refresh");
+  } catch (error) {
+    // If the request returns an error, clear cookies and localStorage
+    clearCookies();
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    console.log("Error during logout:", error);
+    throw error; // Re-throw the error so it can be handled by the calling code
+  }
 };
 
 export default axiosAuthInstance;

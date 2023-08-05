@@ -38,7 +38,7 @@ const useCart = (): CartSheetContextType => {
   const context = useContext(CartSheetContext);
 
   if (!context) {
-    throw new Error("useSheet must be used within a SheetProvider");
+    throw new Error("useCart must be used within a SheetProvider");
   }
 
   return context;

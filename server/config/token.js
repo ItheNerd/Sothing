@@ -6,7 +6,8 @@ function generateAccessToken(user) {
     id: user._id,
     email: user.email,
     role: user.role,
-    firstname: user.firstname
+    firstname: user.firstname,
+    lastname: user.lastname,
   };
   // Generate the access token using JWT
   const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {

@@ -16,7 +16,6 @@ const populateCartItemWithProduct = async (cart) => {
     const variantConfig = product.variantConfig.find(
       (variant) => variant._id.toString() === variantConfigId
     );
-    console.log(variantConfig);
 
     // Update the product data to only include the relevant variantConfig
     item.productId = {
@@ -109,6 +108,7 @@ const getCart = asyncHandler(async (req, res) => {
     }
 
     const populatedCart = await populateCartItemWithProduct(cart);
+    console.log(populatedCart);
     res.status(200).json(populatedCart);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch cart." });

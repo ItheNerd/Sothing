@@ -1,149 +1,130 @@
-import { useState, useEffect } from "react";
 import useAxios from "../hooks/useAxios";
 import { z } from "zod";
+import { MainCartSchema } from "../schemas/cartSchema";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
-const ProductProductSchema = z.object({
-  _id: z.string(),
-  title: z.string(),
-  price: z.number(),
-});
+const useCartAPI = () => {
+  const { api: cartAPI } = useAxios({ subURL: "cart" });
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-const ProductElementSchema = z.object({
-  product: ProductProductSchema,
-  quantity: z.number(),
-  variant: z.string(),
-  _id: z.string(),
-});
-
-const CartSchema = z.object({
-  _id: z.string(),
-  user: z.string(),
-  total: z.number(),
-  products: z.array(ProductElementSchema),
-  __v: z.number(),
-});
-
-const MainSchema = z.object({
-  cart: CartSchema,
-});
-
-type ProductProduct = z.infer<typeof ProductProductSchema>;
-type ProductElement = z.infer<typeof ProductElementSchema>;
-type Cart = z.infer<typeof CartSchema>;
-type Main = z.infer<typeof MainSchema>;
-
-const useCart = () => {
-  const { api } = useAxios({ subURL: "cart" });
-  const [cart, setCart] = useState<Cart | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCart = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await api.get<Main>("/");
-        setCart(response.data.cart);
-      } catch (error: any) {
-        setError(error.response?.data?.message || "Error retrieving cart");
-      }
-
-      setIsLoading(false);
-    };
-
-    fetchCart();
-  }, [api]);
+  // Define the types using the Zod schemas
+  type MainCartType = z.infer<typeof MainCartSchema>;
 
   const addToCart = async (
     productId: string,
     quantity: number,
-    variant: string
-  ) => {
-    setIsLoading(true);
-    setError(null);
-
+    variantConfigId: string
+  ): Promise<MainCartType> => {
+    if (!user) {
+      // Display a toast asking the user to sign in
+      toast({
+        variant: "default",
+        title: "Sign In Required",
+        description: "Please sign in before adding items to your cart.",
+      });
+      throw new Error("User not signed in.");
+    }
     try {
-      const response = await api.post<Main>("/", {
+      const response = await cartAPI.post("/", {
         productId,
         quantity,
-        variant,
+        variantConfigId,
       });
-      setCart(response.data.cart);
-    } catch (error: any) {
-      setError(error.response?.data?.message || "Error adding to cart");
+      const cart = MainCartSchema.parse(response.data);
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to add item to cart");
     }
-
-    setIsLoading(false);
   };
 
-  const updateCartItem = async (productId: string, quantity: number) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await api.put<Main>(`/${productId}`, { quantity });
-      setCart(response.data.cart);
-    } catch (error: any) {
-      setError(error.response?.data?.message || "Error updating cart item");
+  const getCart = async (): Promise<MainCartType> => {
+    if (!user) {
+      //   Display a toast asking the user to sign in
+      toast({
+        variant: "default",
+        title: "Sign In Required",
+        description: "Please sign in before adding items to your cart.",
+      });
+      throw new Error(`User: ${user} not signed in.`);
     }
-
-    setIsLoading(false);
+    try {
+      const response = await cartAPI.get("/");
+      const cart = MainCartSchema.parse(response.data);
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to fetch cart");
+    }
   };
 
-  const removeCartItem = async (productId: string) => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await api.delete<Main>(`/${productId}`);
-      setCart(response.data.cart);
-    } catch (error: any) {
-      setError(error.response?.data?.message || "Error removing cart item");
+  const updateCartItem = async (
+    itemId: string,
+    quantity: number
+  ): Promise<MainCartType> => {
+    if (!user) {
+      // Display a toast asking the user to sign in
+      toast({
+        variant: "default",
+        title: "Sign In Required",
+        description: "Please sign in before adding items to your cart.",
+      });
+      throw new Error(`User: ${user} not signed in.`);
     }
-
-    setIsLoading(false);
+    try {
+      const response = await cartAPI.put(`/${itemId}`, { quantity });
+      const cart = MainCartSchema.parse(response.data);
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to update cart item");
+    }
   };
 
-  const clearCart = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await api.delete<Main>("/");
-      setCart(response.data.cart);
-    } catch (error: any) {
-      setError(error.response?.data?.message || "Error clearing cart");
+  const removeCartItem = async (itemId: string): Promise<MainCartType> => {
+    if (!user) {
+      // Display a toast asking the user to sign in
+      toast({
+        variant: "default",
+        title: "Sign In Required",
+        description: "Please sign in before adding items to your cart.",
+      });
+      throw new Error(`User: ${user} not signed in.`);
     }
-
-    setIsLoading(false);
+    try {
+      const response = await cartAPI.delete(`/${itemId}`);
+      const cart = MainCartSchema.parse(response.data);
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to remove item from cart");
+    }
   };
 
-  const getCart = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const response = await api.get<Main>("/");
-      setCart(response.data.cart);
-    } catch (error: any) {
-      setError(error.response?.data?.message || "Error retrieving cart");
+  const clearCart = async (): Promise<MainCartType> => {
+    if (!user) {
+      // Display a toast asking the user to sign in
+      toast({
+        variant: "default",
+        title: "Sign In Required",
+        description: "Please sign in before adding items to your cart.",
+      });
+      throw new Error(`User: ${user} not signed in.`);
     }
-
-    setIsLoading(false);
+    try {
+      const response = await cartAPI.delete("/");
+      const cart = MainCartSchema.parse(response.data);
+      return cart;
+    } catch (error) {
+      throw new Error("Failed to clear cart");
+    }
   };
 
   return {
-    cart,
-    isLoading,
-    error,
     addToCart,
+    getCart,
     updateCartItem,
     removeCartItem,
     clearCart,
-    getCart,
   };
 };
 
-export default useCart;
+export default useCartAPI;

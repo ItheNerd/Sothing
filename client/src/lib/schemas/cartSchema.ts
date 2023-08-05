@@ -1,29 +1,60 @@
 import { z } from "zod";
 
-const ProductProductSchema = z.object({
+const PriceSchema = z.object({
+  amount: z.number(),
+  unit: z.string(),
+});
+
+const VariantCombinationSchema = z.object({
+  variantType: z.string(),
+  variantValue: z.string(),
+  _id: z.string(),
+});
+
+const VariantConfigSchema = z.object({
+  price: PriceSchema,
+  name: z.string(),
+  sq_id: z.string(),
+  variantCombination: z.array(VariantCombinationSchema),
+  quantity: z.number(),
+  images: z.array(z.string()),
+  rating: z.number(),
+  _id: z.string(),
+});
+
+const ProductIDSchema = z.object({
   _id: z.string(),
   title: z.string(),
-  price: z.number(),
+  variantConfig: z.array(VariantConfigSchema),
+  company: z.string(),
+  brand: z.string(),
+  coverImageURL: z.string(),
+  rating: z.number(),
 });
 
-const ProductElementSchema = z.object({
-  product: ProductProductSchema,
+const ItemSchema = z.object({
+  productId: ProductIDSchema,
   quantity: z.number(),
-  variant: z.string(),
+  variantConfigId: z.string(),
   _id: z.string(),
-  image: z.string(),
 });
 
-const CartSchema = z.object({
+const MainCartSchema = z.object({
   _id: z.string(),
-  user: z.string(),
-  total: z.number(),
-  products: z.array(ProductElementSchema),
+  userId: z.string(),
+  totalPrice: z.number(),
+  items: z.array(ItemSchema),
+  createdAt: z.string(),
+  updatedAt: z.string(),
   __v: z.number(),
+  id: z.string(),
 });
 
-const MainSchema = z.object({
-  cart: CartSchema,
-});
-
-export { MainSchema, CartSchema, ProductElementSchema, ProductProductSchema };
+export {
+  PriceSchema,
+  VariantCombinationSchema,
+  VariantConfigSchema,
+  ProductIDSchema,
+  ItemSchema,
+  MainCartSchema,
+};

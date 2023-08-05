@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
+import Banner from "../ui/banner";
 
 interface MainBannerProps {
   mainBanner: MainBannerData;

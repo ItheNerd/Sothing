@@ -1,4 +1,4 @@
-import MainBanner, { MainBannerData } from "@/components/index/banner";
+import MainBanner, { MainBannerData } from "@/components/index/mainBanner";
 import MainProduct, { Product } from "@/components/index/collection";
 import MainLayout from "@/layouts/MainLayout";
 
