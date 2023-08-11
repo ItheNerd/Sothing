@@ -40,7 +40,12 @@ const index = () => {
                 />
               </ProductInfo>
             }
-            action={<ProductButton />}
+            action={
+              <ProductButton
+                variantConfigId={product.variantConfig[0]._id}
+                productId={product._id}
+              />
+            }
           />
         ))}
       </ProductCollection>

@@ -1,7 +1,7 @@
 {
     "client": "Thunder Client",
     "collectionName": "sothings",
-    "dateExported": "2023-06-12T19:02:23.221Z",
+    "dateExported": "2023-08-06T01:29:28.272Z",
     "version": "1.1",
     "folders": [],
     "requests": [
@@ -14,12 +14,12 @@
             "method": "POST",
             "sortNum": 5000,
             "created": "2023-06-12T12:07:05.087Z",
-            "modified": "2023-06-12T12:43:12.141Z",
+            "modified": "2023-07-17T11:34:57.893Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"firstname\": \"jayanth\",\n  \"email\": \"jayanth@mail\",\n  \"password\": \"pwd\",\n  \"role\": \"admin\"\n}",
+                "raw": "{\n  \"firstname\": \"jayanth\",\n  \"email\": \"jayanth@mail\",\n  \"password\": \"pwd\",\n  \"admin\":true\n}",
                 "form": []
             },
             "auth": {
@@ -37,19 +37,39 @@
             "method": "POST",
             "sortNum": 7500,
             "created": "2023-06-12T12:07:47.316Z",
-            "modified": "2023-06-12T12:41:31.355Z",
-            "headers": [],
+            "modified": "2023-08-06T01:23:15.270Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"email\": \"admin@mail\",\n  \"password\": \"pwd\"\n}",
+                "raw": "{\n  \"email\": \"jayanth@mail\",\n  \"password\": \"pwd\"\n}",
                 "form": []
             },
-            "auth": {
-                "type": "bearer",
-                "bearer": "{{accessToken}}"
-            },
-            "tests": []
+            "tests": [
+                {
+                    "type": "set-env-var",
+                    "custom": "json.accessToken",
+                    "action": "setto",
+                    "value": "{{accessToken}}"
+                },
+                {
+                    "type": "set-env-var",
+                    "custom": "cookie.refreshToken",
+                    "action": "setto",
+                    "value": "{{refreshToken}}"
+                }
+            ]
         },
         {
             "_id": "951dc9c4-1c77-4b32-938f-fd9f2b40bad1",
@@ -60,8 +80,13 @@
             "method": "GET",
             "sortNum": 8750,
             "created": "2023-06-12T12:07:53.330Z",
-            "modified": "2023-06-12T12:45:38.898Z",
-            "headers": [],
+            "modified": "2023-07-07T14:12:57.740Z",
+            "headers": [
+                {
+                    "name": "Cookie",
+                    "value": "refreshToken={{refreshToken}}"
+                }
+            ],
             "params": [],
             "auth": {
                 "type": "bearer",
@@ -69,10 +94,16 @@
             },
             "tests": [
                 {
-                    "type": "res-code",
-                    "custom": "",
-                    "action": "equal",
-                    "value": "True"
+                    "type": "set-env-var",
+                    "custom": "null",
+                    "action": "setto",
+                    "value": "{{accessToken}}"
+                },
+                {
+                    "type": "set-env-var",
+                    "custom": "null",
+                    "action": "setto",
+                    "value": "{{refreshToken}}"
                 }
             ]
         },
@@ -128,16 +159,16 @@
             "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
             "containerId": "",
             "name": "BlockUser",
-            "url": "http://localhost:5000/api/user/block?id=648329fb3e131da23b84ba10&block=true",
+            "url": "http://localhost:5000/api/user/block?id=64870aead9e388215ad28af4&block=true",
             "method": "PUT",
             "sortNum": 50000,
             "created": "2023-06-12T12:07:29.321Z",
-            "modified": "2023-06-12T12:46:31.201Z",
+            "modified": "2023-06-13T09:09:53.896Z",
             "headers": [],
             "params": [
                 {
                     "name": "id",
-                    "value": "648329fb3e131da23b84ba10",
+                    "value": "64870aead9e388215ad28af4",
                     "isPath": false
                 },
                 {
@@ -157,39 +188,48 @@
             "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
             "containerId": "",
             "name": "UserRefresh",
-            "url": "http://localhost:5000/api/user/refresh",
+            "url": "user/refresh",
             "method": "PUT",
             "sortNum": 90000,
             "created": "2023-06-12T12:07:57.828Z",
-            "modified": "2023-06-12T12:14:04.373Z",
+            "modified": "2023-07-28T18:44:36.555Z",
             "headers": [
                 {
                     "name": "Cookie",
-                    "value": "refreshToken= eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0ODQ2NzQ5OTczMWNmY2IxMDJjODhjMyIsImVtYWlsIjoiYWRtaW5AbWFpbCIsInJvbGUiOiJhZG1pbiIsImZpcnN0bmFtZSI6IkFkbWluIiwiaWF0IjoxNjg2NTY3MDc5LCJleHAiOjE2ODcxNzE4Nzl9.to_AtaJtnCex_YCN9S82idOBgX3-LaP8B4nEmKBQmlM"
+                    "value": "refreshToken={{refreshToken}}"
                 }
             ],
             "params": [],
-            "auth": {
-                "type": "bearer",
-                "bearer": "{{accessToken}}"
-            },
-            "tests": []
+            "tests": [
+                {
+                    "type": "set-env-var",
+                    "custom": "json.newAccessToken",
+                    "action": "setto",
+                    "value": "{{accessToken}}"
+                },
+                {
+                    "type": "set-env-var",
+                    "custom": "cookie.refreshToken",
+                    "action": "setto",
+                    "value": "{{refreshToken}}"
+                }
+            ]
         },
         {
             "_id": "00bb3750-6e96-44df-8128-db96279a3241",
             "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
             "containerId": "",
             "name": "DeleteUser",
-            "url": "http://localhost:5000/api/user/?id=64832919ea0e49ec9c126845",
+            "url": "http://localhost:5000/api/user/?id=648329fb3e131da23b84ba10",
             "method": "DELETE",
             "sortNum": 100000,
             "created": "2023-06-12T12:07:22.486Z",
-            "modified": "2023-06-12T12:14:06.432Z",
+            "modified": "2023-06-13T09:03:37.855Z",
             "headers": [],
             "params": [
                 {
                     "name": "id",
-                    "value": "64832919ea0e49ec9c126845",
+                    "value": "648329fb3e131da23b84ba10",
                     "isPath": false
                 }
             ],
@@ -208,12 +248,53 @@
             "method": "POST",
             "sortNum": 110000,
             "created": "2023-06-12T12:05:31.821Z",
-            "modified": "2023-06-12T12:14:08.443Z",
+            "modified": "2023-08-02T10:50:17.319Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"title\": \"Rating\",\n  \"description\": \"This product has ratings\",\n  \"price\": 49.99,\n  \"category\": \"Clothing\",\n  \"brand\": \"Example Brand\",\n  \"quantity\": 20,\n  \"sold\": 5,\n  \"images\": [\n    {\n      \"public_id\": \"image1\",\n      \"url\": \"https://example.com/image1.jpg\"\n    },\n    {\n      \"public_id\": \"image2\",\n      \"url\": \"https://example.com/image2.jpg\"\n    }\n  ],\n  \"variants\": [],\n  \"tags\": \"rating, example\",\n  \"ratings\": [\n    {\n      \"star\": 5,\n      \"review\": \"Great product!\",\n      \"postedby\": \"64832a2c3e131da23b84ba14\"\n    },\n    {\n      \"star\": 4,\n      \"review\": \"Good quality\",\n      \"postedby\": \"648329fb3e131da23b84ba10\"\n    }\n  ]\n}\n",
+                "raw": "{\n  \"title\": \"Xiaomi Note 10 Pro\",\n  \"description\": \"Smartphone\",\n  \"variantConfig\": [\n    {\n      \"variantCombination\": [\n        {\n          \"variantType\": \"Color\",\n          \"variantValue\": \"Green\"\n        },\n        {\n          \"variantType\": \"Storage\",\n          \"variantValue\": \"512GB\"\n        },\n        {\n          \"variantType\": \"RAM\",\n          \"variantValue\": \"32GB\"\n        }\n      ],\n      \"name\": \"Jade Green\",\n      \"quantity\": 5,\n      \"price\": {\n        \"amount\": 224.99,\n        \"unit\": \"USD\"\n      },\n      \"images\": [\n        \"https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-mi-cc9-pro-1.jpg\",\n        \"https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-mi-cc9-pro-4.jpg\",\n        \"https://fdn2.gsmarena.com/vv/pics/xiaomi/xiaomi-mi-cc9-pro-3.jpg\"\n      ]\n    },\n    {\n      \"variantCombination\": [\n        {\n          \"variantType\": \"Color\",\n          \"variantValue\": \"Red\"\n        },\n        {\n          \"variantType\": \"Storage\",\n          \"variantValue\": \"512GB\"\n        },\n        {\n          \"variantType\": \"RAM\",\n          \"variantValue\": \"32GB\"\n        }\n      ],\n      \"name\": \"Solar Red\",\n      \"quantity\": 5,\n      \"price\": {\n        \"amount\": 200.99,\n        \"unit\": \"USD\"\n      },\n      \"images\": [\n        \"https://fdn.gsmarena.com/imgroot/reviews/19/xiaomi-mi-note-10/lifestyle/-1024w2/gsmarena_001.jpg\",\n        \"https://fdn.gsmarena.com/imgroot/reviews/19/xiaomi-mi-note-10/lifestyle/-1024w2/gsmarena_005.jpg\",\n        \"https://fdn.gsmarena.com/imgroot/reviews/19/xiaomi-mi-note-10/lifestyle/-1024w2/gsmarena_009.jpg\",\n        \"https://fdn.gsmarena.com/imgroot/reviews/19/xiaomi-mi-note-10/lifestyle/-1024w2/gsmarena_010.jpg\"\n      ]\n    }\n  ],\n  \"company\": \"phoneSeller\",\n  \"brand\": \"Xiaomi\",\n  \"category\": \"tech\",\n  \"coverImageURL\": \"https://fdn.gsmarena.com/imgroot/reviews/19/xiaomi-mi-note-10/lifestyle/-1024w2/gsmarena_006.jpg\",\n  \"tags\": [\n    \"Example\",\n    \"Product\"\n  ]\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "5f6acc3a-e5b4-487f-a6ae-46072ffb6174",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "updateProduct",
+            "url": "product/64ad961394b6a17296fac308",
+            "method": "PUT",
+            "sortNum": 111250,
+            "created": "2023-07-11T17:56:10.752Z",
+            "modified": "2023-07-11T17:59:28.305Z",
+            "headers": [],
+            "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "9ea65238-5f3a-4ba3-9b41-dc5cab00b2f6",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "createCompany",
+            "url": "company",
+            "method": "POST",
+            "sortNum": 112500,
+            "created": "2023-06-13T10:43:19.446Z",
+            "modified": "2023-07-11T18:03:12.682Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"title\":\"phoneSeller\"\n}",
                 "form": []
             },
             "auth": {
@@ -231,12 +312,12 @@
             "method": "POST",
             "sortNum": 115000,
             "created": "2023-06-12T12:51:38.493Z",
-            "modified": "2023-06-12T13:07:00.789Z",
+            "modified": "2023-06-15T10:19:27.856Z",
             "headers": [],
             "params": [],
             "body": {
                 "type": "json",
-                "raw": "{\n  \"title\":\"PC\"\n}",
+                "raw": "{\n  \"title\":\"tech\"\n}",
                 "form": []
             },
             "auth": {
@@ -250,31 +331,193 @@
             "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
             "containerId": "",
             "name": "getProduct",
-            "url": "product",
+            "url": "product/listings/",
             "method": "GET",
             "sortNum": 120000,
             "created": "2023-06-12T12:47:28.363Z",
-            "modified": "2023-06-12T12:47:40.148Z",
+            "modified": "2023-08-06T01:20:17.456Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "adcf1d49-0013-4dd6-9da7-ff01d3cb5f0e",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "deleteProduct",
+            "url": "product/64879bbe0ef65c2a5d572d1c",
+            "method": "DELETE",
+            "sortNum": 140000,
+            "created": "2023-06-13T11:08:58.614Z",
+            "modified": "2023-06-13T11:10:18.975Z",
             "headers": [],
             "params": [],
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "4267a386-9944-4654-a5bc-b5e95e82d668",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "getRecommendations",
+            "url": "product/recommendations?id=64b6677e0118f0fa93d8afe7",
+            "method": "GET",
+            "sortNum": 150000,
+            "created": "2023-06-14T16:57:21.636Z",
+            "modified": "2023-07-18T10:21:09.114Z",
+            "headers": [
+                {
+                    "name": "Accept",
+                    "value": "*/*",
+                    "isDisabled": true
+                },
+                {
+                    "name": "User-Agent",
+                    "value": "Thunder Client (https://www.thunderclient.com)",
+                    "isDisabled": true
+                }
+            ],
+            "params": [
+                {
+                    "name": "id",
+                    "value": "64b6677e0118f0fa93d8afe7",
+                    "isPath": false
+                }
+            ],
+            "tests": []
+        },
+        {
+            "_id": "5f78c778-f06e-44f3-83a9-782d09008ad8",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "createSubCategory",
+            "url": "product/subcategory",
+            "method": "POST",
+            "sortNum": 160000,
+            "created": "2023-06-15T10:19:53.441Z",
+            "modified": "2023-06-15T10:50:03.435Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"title\": \"other tech\",\n  \"category\": \"tech\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "359f5e4b-7c92-476e-9c0c-be2a809a4d88",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "addCart",
+            "url": "cart/",
+            "method": "POST",
+            "sortNum": 170000,
+            "created": "2023-06-16T12:16:30.455Z",
+            "modified": "2023-07-27T12:03:22.627Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"productId\": \"64b6fdcb3cc60aede8e1e795\",\n  \"variantConfigId\": \"64b6fdcb3cc60aede8e1e796\",\n  \"quantity\": 5\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "d14a21bf-b2e5-46e6-b21e-d867dbb37664",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "searchProduct",
+            "url": "product/search?search=5",
+            "method": "GET",
+            "sortNum": 180000,
+            "created": "2023-06-18T14:52:48.578Z",
+            "modified": "2023-08-02T11:01:37.359Z",
+            "headers": [],
+            "params": [
+                {
+                    "name": "search",
+                    "value": "5",
+                    "isPath": false
+                }
+            ],
+            "tests": []
+        },
+        {
+            "_id": "62828a4d-41fd-43c0-9dd6-19e65efc9a1e",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "passwordReset",
+            "url": "user/reset",
+            "method": "PUT",
+            "sortNum": 190000,
+            "created": "2023-07-06T07:29:13.185Z",
+            "modified": "2023-07-06T07:30:43.175Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"jayanth@mail\",\n  \"password\": \"pwd\"\n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
+            "tests": []
+        },
+        {
+            "_id": "fe94a433-5019-44b1-bd63-acea3c0e41e3",
+            "colId": "bb77e95f-1570-4b85-8fff-39286b134962",
+            "containerId": "",
+            "name": "clearCart",
+            "url": "cart/",
+            "method": "DELETE",
+            "sortNum": 200000,
+            "created": "2023-07-10T07:52:36.742Z",
+            "modified": "2023-08-02T11:03:33.198Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \n}",
+                "form": []
+            },
+            "auth": {
+                "type": "bearer",
+                "bearer": "{{accessToken}}"
+            },
             "tests": []
         }
     ],
     "settings": {
-        "tests": [
-            {
-                "type": "set-env-var",
-                "custom": "json.accessToken",
-                "action": "setto",
-                "value": "{{accessToken}}"
-            },
-            {
-                "type": "set-env-var",
-                "custom": "cookie.refreshToken",
-                "action": "setto",
-                "value": "{{refreshToken}}"
-            }
-        ],
+        "auth": {
+            "type": "bearer",
+            "bearer": "{{accessToken}}"
+        },
         "options": {
             "baseUrl": "http://localhost:5000/api/"
         },

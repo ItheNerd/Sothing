@@ -26,7 +26,7 @@ type AuthContextType = {
   registerUser: (req: RegisterTypes) => Promise<void>;
   loginUser: (req: LoginTypes) => Promise<void>;
   logoutUser: () => Promise<void>;
-  refreshToken: () => Promise<void>;
+  refreshToken: () => Promise<string | undefined>;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -117,7 +117,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         email,
         accessToken,
       });
-      
+
       localStorage.setItem("accessToken", accessToken);
       toast({
         variant: "default",
@@ -182,15 +182,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
           });
         }
       } else {
-        console.log(error.message);
+        throw new Error(error.message);
       }
     }
   };
 
-  const refreshToken = async () => {
+  const refreshToken = async (): Promise<string | undefined> => {
     try {
       const response = await authAPI.refreshToken();
-      const newAccessToken = response.data.newAccessToken;
+      const newAccessToken = response?.data.newAccessToken;
 
       setAccessToken(newAccessToken);
       localStorage.setItem("accessToken", newAccessToken);
@@ -198,15 +198,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       axiosAuthInstance.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${newAccessToken}`;
+
+      return newAccessToken;
     } catch (error: any) {
-      console.log(error.response.data.message);
+      throw new Error(error.response.data.message);
     }
   };
 
   useEffect(() => {
     setAccessToken(localStorage.getItem("accessToken"));
     if (accessToken) {
-      setUser(jwt_decode<User>(localStorage.getItem("accessToken") || ""));
+      const decodedToken = jwt_decode<any>(accessToken);
+      const newUserData = {
+        _id: decodedToken.id,
+        firstname: decodedToken.firstname,
+        email: decodedToken.email,
+        accessToken: accessToken,
+        lastname: decodedToken.lastname,
+      };
+      setUser(newUserData || "");
     }
     setLoading(false);
   }, [accessToken]);

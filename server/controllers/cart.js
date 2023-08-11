@@ -43,7 +43,7 @@ const addToCart = asyncHandler(async (req, res) => {
     // Check if the product exists and get its variant inventory
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(404).json({ error: "Product not found." });
+      return res.status(404).json({ message: "Product not found." });
     }
 
     const variantInventory = product.variantConfig.find(
@@ -53,14 +53,14 @@ const addToCart = asyncHandler(async (req, res) => {
     if (!variantInventory) {
       return res
         .status(404)
-        .json({ error: "Variant configuration not found." });
+        .json({ message: "Variant configuration not found." });
     }
 
     // Check if the requested quantity is available
     if (quantity > variantInventory.quantity) {
       return res
         .status(400)
-        .json({ error: "Insufficient quantity available." });
+        .json({ message: "Insufficient quantity available." });
     }
 
     // Find the user's cart or create a new cart if it doesn't exist
@@ -108,7 +108,6 @@ const getCart = asyncHandler(async (req, res) => {
     }
 
     const populatedCart = await populateCartItemWithProduct(cart);
-    console.log(populatedCart);
     res.status(200).json(populatedCart);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch cart." });
@@ -151,14 +150,14 @@ const updateCartItem = asyncHandler(async (req, res) => {
     if (!variantInventory) {
       return res
         .status(404)
-        .json({ error: "Variant configuration not found." });
+        .json({ message: "Variant configuration not found." });
     }
 
     // Check if the requested quantity is available
     if (quantity > variantInventory.quantity) {
       return res
         .status(400)
-        .json({ error: "Insufficient quantity available." });
+        .json({ message: "Insufficient quantity available :(." });
     }
 
     // Update the quantity for the specified item in the cart

@@ -1,5 +1,5 @@
 import ProductDetail from "@/components/products/productLisisting";
-import ProductVariantForm from "@/components/products/productVariant";
+import ProductRecommendation from "@/components/products/productRecommendation";
 import MainLayout from "@/layouts/MainLayout";
 import useProductAPI from "@/lib/api/productAPI";
 import { ProductSchema } from "@/lib/schemas/productSchema";
@@ -20,7 +20,7 @@ const listing = () => {
   return (
     <MainLayout>
       <ProductDetail product={product!} />
-      {/* <ProductVariantForm product={product!} /> */}
+      <ProductRecommendation productId={id!}/>
     </MainLayout>
   );
 };

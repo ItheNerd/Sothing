@@ -3,6 +3,7 @@ import { Button, ButtonProps } from "../ui/button";
 import cn from "classnames";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Link, LinkProps } from "react-router-dom";
+import CartButton from "./cartButton";
 
 type DivProps = HTMLAttributes<HTMLDivElement>;
 
@@ -13,20 +14,28 @@ type ProductCardProps = DivProps & {
 };
 
 export const ProductCard = forwardRef(function ProductCard(
-  { image, info, action, className, ...props }: ProductCardProps & LinkProps,
+  {
+    image,
+    info,
+    action,
+    className,
+    to,
+    ...props
+  }: ProductCardProps & LinkProps,
   ref: Ref<HTMLAnchorElement>
 ) {
   return (
-    <Link
-      ref={ref}
+    <div
       className={cn("group block overflow-hidden rounded-lg border", className)}
       {...props}>
-      {image}
+      <Link to={to} ref={ref}>
+        {image}
+      </Link>
       <div className="flex items-center justify-between p-2">
-        {info}
+        <Link to={to}>{info}</Link>
         {action}
       </div>
-    </Link>
+    </div>
   );
 });
 
@@ -148,28 +157,35 @@ export const ProductPrice = forwardRef(function ProductPrice(
   );
 });
 
-type ProductButtonProps = ButtonProps & DivProps;
+type ProductButtonProps = ButtonProps &
+  DivProps & {
+    type?: "button" | "submit" | "reset";
+    productId: string;
+    variantConfigId: string;
+  };
 export const ProductButton = forwardRef(function ProductButton(
-  { className, ...props }: ProductButtonProps,
+  { className, variantConfigId, productId, ...props }: ProductButtonProps,
   ref: Ref<HTMLButtonElement>
 ) {
   return (
-    <div className="flex flex-col">
-      <Button
-        variant="ghost"
+    <div className="flex flex-col gap-2">
+      <CartButton
+        productId={productId}
+        variantConfigId={variantConfigId}
+        variant="secondary"
         type="button"
         ref={ref}
         className={cn("", className)}
         {...props}>
         <ShoppingCart />
-      </Button>
+      </CartButton>
       <Button
-        variant="ghost"
+        variant="secondary"
         type="button"
         ref={ref}
-        className={cn("", className)}
+        className={cn("group/cartbtn hover:bg-rose-200", className)}
         {...props}>
-        <Heart />
+        <Heart className="duration-75 ease-in group-hover/cartbtn:text-rose-500" />
       </Button>
     </div>
   );

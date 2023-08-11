@@ -20,16 +20,15 @@ const useProductAPI = () => {
     limit: number = 5
   ): Promise<ProductRecommendationType[]> => {
     try {
-      const response = await productAPI.get("/recommended", {
+      const response = await productAPI.get("/recommendations", {
         params: { id, limit },
       });
-      const products = response.data.products.map((product: any) =>
-        ProductSchema.parse(product)
+      const products: ProductRecommendationType[] = response.data.map(
+        (product: ProductRecommendationType) => ProductRecommendationSchema.parse(product)
       );
       return products;
     } catch (error) {
-      console.log("Failed to fetch recommended products", error);
-      throw new Error("Failed to fetch recommended products");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 
@@ -54,8 +53,7 @@ const useProductAPI = () => {
       const data = GetProductListSchema.parse(response.data);
       return data;
     } catch (error) {
-      console.log("Failed to fetch product list", error);
-      throw new Error("Failed to fetch product list");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 
@@ -65,8 +63,7 @@ const useProductAPI = () => {
       const product = ProductSchema.parse(response.data);
       return product;
     } catch (error) {
-      console.log("Failed to fetch product by ID", error);
-      throw new Error("Failed to fetch product by ID");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 
@@ -76,8 +73,7 @@ const useProductAPI = () => {
       const createdProduct = ProductSchema.parse(response.data);
       return createdProduct;
     } catch (error) {
-      console.log("Failed to create product", error);
-      throw new Error("Failed to create product");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 
@@ -90,8 +86,7 @@ const useProductAPI = () => {
       const updatedProduct = ProductSchema.parse(response.data);
       return updatedProduct;
     } catch (error) {
-      console.log("Failed to update product", error);
-      throw new Error("Failed to update product");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 
@@ -99,8 +94,7 @@ const useProductAPI = () => {
     try {
       await productAPI.delete(`/${productId}`);
     } catch (error) {
-      console.log("Failed to delete product", error);
-      throw new Error("Failed to delete product");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 
@@ -112,8 +106,7 @@ const useProductAPI = () => {
       );
       return products;
     } catch (error) {
-      console.log("Failed to fetch search results", error);
-      throw new Error("Failed to fetch search results");
+      throw new Error(`Something went wrong in the products' API: ${error}`);
     }
   };
 

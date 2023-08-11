@@ -8,7 +8,7 @@ type CartButtonProps = ButtonProps & {
   type?: "button" | "submit" | "reset";
   productId: string;
   variantConfigId: string;
-  quantity: number;
+  quantity?: number;
 };
 
 type CartButtonRef = HTMLButtonElement;

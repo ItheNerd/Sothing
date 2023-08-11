@@ -51,12 +51,13 @@ const useAxios = ({ subURL, headers }: UseAxiosConfig): UseAxiosResult => {
         // Check if token refreshing is already in progress
         if (!isRefreshing) {
           setIsRefreshing(true);
-          console.log("refreshing JWT tokens");
           try {
             // Refresh the token
-            await refreshToken();
+            const newAccessToken = await refreshToken();
             setIsRefreshing(false);
-            console.log("refresed JWT tokens");
+            // Update the original request's Authorization header with the new token
+            api.defaults.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            originalRequest.headers!.Authorization = `Bearer ${newAccessToken}`;
             // Retry the original request with the new token
             return api(originalRequest);
           } catch (refreshError) {
@@ -69,13 +70,13 @@ const useAxios = ({ subURL, headers }: UseAxiosConfig): UseAxiosResult => {
           }
         } else {
           // Wait for token refreshing to complete and then retry the original request
-          return new Promise((resolve, reject) => {
+          return new Promise((resolve, _) => {
             const intervalId = setInterval(() => {
               if (!isRefreshing) {
                 clearInterval(intervalId);
                 resolve(api(originalRequest));
               }
-            }, 100);
+            }, 1000);
           });
         }
       }

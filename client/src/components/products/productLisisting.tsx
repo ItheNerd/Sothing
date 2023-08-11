@@ -61,20 +61,26 @@ function ProductFAQ() {
       <Accordion type="single" collapsible className="w-full px-4">
         <Separator />
         <AccordionItem value="item-1">
-          <AccordionTrigger>Is it accessible?</AccordionTrigger>
+          <AccordionTrigger className="font-notosans">
+            Is it accessible?
+          </AccordionTrigger>
           <AccordionContent>
             Yes. It adheres to the WAI-ARIA design pattern.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
-          <AccordionTrigger>Is it styled?</AccordionTrigger>
+          <AccordionTrigger className="font-notosans">
+            Is it styled?
+          </AccordionTrigger>
           <AccordionContent>
             Yes. It comes with default styles that matches the other
             components&apos; aesthetic.
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-3">
-          <AccordionTrigger>Is it animated?</AccordionTrigger>
+          <AccordionTrigger className="font-notosans">
+            Is it animated?
+          </AccordionTrigger>
           <AccordionContent>
             Yes. It&apos;s animated by default, but you can disable it if you
             prefer.
@@ -253,7 +259,6 @@ function ProductCartandWishList({
     if (!isNaN(newQuantity) && newQuantity > 0) {
       setQuantity(newQuantity);
     } else {
-      // If an invalid value is entered, set the quantity to 1 (or any default value you want)
       setQuantity(1);
     }
   };
@@ -332,6 +337,7 @@ function ProductDetail({ product }: ProductDetailProps) {
           </div>
         </div>
       </div>
+      <Separator className="mt-4" />
     </section>
   );
 }

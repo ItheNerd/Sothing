@@ -139,7 +139,6 @@ const handleRefreshToken = async (req, res) => {
       sameSite: "None",
       secure: true,
     });
-    console.log("refreshToken:", refreshToken, user.refreshToken);
     res.json({ newAccessToken, newRefreshToken });
   } catch (err) {
     res.status(401).json({ message: err.message });
