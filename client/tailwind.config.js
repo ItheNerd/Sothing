@@ -1,4 +1,11 @@
 /** @type {import('tailwindcss').Config} */
+
+if (!Object.hasOwn) {
+  Object.hasOwn = (obj, key) => {
+    return typeof obj === "object" && obj.hasOwnProperty(key);
+  };
+}
+
 module.exports = {
   darkMode: ["class"],
   content: [
