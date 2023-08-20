@@ -36,7 +36,7 @@ export function useRoutesWith404(routes: any) {
       <QueryAsyncBoundary
         pendingFallback={
           <div className="flex h-screen items-center justify-center">
-            <span className="loading loading-dots loading-lg" />
+            <span className="loading loading-spinner loading-md" />
           </div>
         }
         rejectedFallback={(boundary) => (

@@ -43,12 +43,8 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-// This can come from your database or API.
 const defaultValues: Partial<ProfileFormValues> = {
   bio: "I own a computer.",
-  urls: [
-    // { value: "https://shadcn.com" },
-  ],
 };
 
 export function ProfileForm() {
@@ -100,10 +96,13 @@ export function ProfileForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Email</FormLabel>
-              <Input disabled type="email" placeholder="m@gmail.com"/>
-              <FormDescription>
-                Your verified email addresses.
-              </FormDescription>
+              <Input
+                disabled
+                type="email"
+                placeholder="m@gmail.com"
+                {...field}
+              />
+              <FormDescription>Your verified email addresses.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -120,7 +119,8 @@ export function ProfileForm() {
                     Addresses
                   </FormLabel>
                   <FormDescription className={cn(index !== 0 && "sr-only")}>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Tempore doloremque
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Tempore doloremque
                   </FormDescription>
                   <FormControl>
                     <Textarea {...field} />

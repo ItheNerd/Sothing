@@ -111,7 +111,7 @@ function ProductRating({ rating }: { rating: number }) {
 }
 
 const ProductPrice = forwardRef(function ProductPrice(
-  { currency = "INR", price = 0, className, ...props }: ProductPriceProps,
+  { currency = "USD", price = 0, className, ...props }: ProductPriceProps,
   ref: Ref<HTMLDivElement>
 ) {
   const formattedPrice = price !== undefined ? price : "";

@@ -18,6 +18,7 @@ module.exports = {
     extend: {
       fontFamily: {
         calsans: ["CalSans", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
         lexend: ["Lexend", "sans-serif"],
         abeezee: ["ABeeZee", "sans-serif"],
         poppins: ["Poppins", "sans-serif"],

@@ -15,8 +15,6 @@ import { Separator } from "./ui/separator";
 import { CommandMenu } from "./search";
 import { Link } from "react-router-dom";
 
-type Props = {};
-
 const components: { title: string; href: string; description: string }[] = [
   {
     title: "Alert Dialog",
@@ -55,7 +53,7 @@ const components: { title: string; href: string; description: string }[] = [
   },
 ];
 
-const navbar = (props: Props) => {
+const navbar = () => {
   return (
     <nav className="relative bg-white dark:bg-gray-800">
       <div className="container mx-auto px-6 py-3">
@@ -130,7 +128,6 @@ const navbar = (props: Props) => {
           <DropdownMenuDemo />
         </div>
       </div>
-      <Separator />
       <div className="mx-auto flex w-full justify-center p-2 md:hidden">
         <NavigationMenu>
           <NavigationMenuList>

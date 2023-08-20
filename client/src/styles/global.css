@@ -75,7 +75,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background font-notosans tracking-tight text-foreground;
+    @apply bg-background font-lexend text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
   h1,

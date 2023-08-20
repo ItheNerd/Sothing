@@ -1,8 +1,6 @@
 import { Separator } from "./ui/separator";
 
-type Props = {};
-
-const footer = (props: Props) => {
+const footer = () => {
   return (
     <>
       <footer className="bg-white">

@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProfileForm } from "./profile/profile-form";
 import { AccountForm } from "./account/account-form";
 import { NotificationsForm } from "./notification/notofication-form";
 import { DisplayForm } from "./display/display-form";
@@ -17,10 +16,10 @@ export function Dashboard({ className, items, ...props }: DashboardProps) {
   return (
     <Tabs
       defaultValue="Profile"
-      className="flex flex-col gap-8 space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+      className="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
       <TabsList
         className={cn(
-          "from-base-300 flex h-auto justify-start gap-3 bg-gradient-to-b to-white lg:flex-col",
+          "from-base-300 flex h-auto justify-start gap-3 lg:flex-col",
           className
         )}
         {...props}>

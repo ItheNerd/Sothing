@@ -61,7 +61,7 @@ const CartPanel: React.FC<SheetModalProps> = () => {
                   <ul role="list" className="-my-6 divide-y divide-gray-200">
                     {cartData.items.map((item) => (
                       <li key={item._id} className="flex py-6">
-                        <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
+                        <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md">
                           <img
                             src={item.productId.coverImageURL}
                             alt={item.productId.title}
@@ -70,29 +70,42 @@ const CartPanel: React.FC<SheetModalProps> = () => {
                         </div>
                         <div className="ml-4 flex flex-1 flex-col">
                           <div>
-                            <div className="flex justify-between text-base font-medium text-gray-900">
+                            <div className="flex justify-between font-medium text-primary">
                               <h3>
                                 <Link to={`/products/${item.productId._id}`}>
                                   {item.productId.title}
                                 </Link>
                               </h3>
                               <p className="ml-4">
-                                {item.productId.variantConfig[0].price.amount}
+                                {new Intl.NumberFormat("en-US", {
+                                  style: "currency",
+                                  currency:
+                                    item.currency !== undefined
+                                      ? item.currency
+                                      : "USD",
+                                }).format(
+                                  item.productId.variantConfig[0].price.amount
+                                )}
                               </p>
                             </div>
-                            <p className="mt-1 text-sm text-gray-500">
+                            <p className="mt-1 text-sm text-muted-foreground">
                               {item.productId.variantConfig[0].name}
                             </p>
                           </div>
                           <div className="flex flex-1 items-end justify-between text-sm">
-                            <p className="text-gray-500">Qty {item.quantity}</p>
+                            <p className="text-muted-foreground">
+                              Qty {item.quantity}
+                            </p>
                             <div className="flex">
                               <Button
                                 variant="ghost"
                                 type="button"
                                 size="sm"
-                                className="duration-200 hover:bg-red-100">
-                                <Trash2 size="20" color="red" />
+                                className="duration-200 hover:bg-red-200">
+                                <Trash2
+                                  size="20"
+                                  className="text-destructive"
+                                />
                               </Button>
                             </div>
                           </div>
@@ -115,6 +128,7 @@ const CartPanel: React.FC<SheetModalProps> = () => {
                     </p>
                     <div className="mt-6 flex flex-col items-center justify-center gap-2">
                       <Link
+                        onClick={() => setIsCartOpen(false)}
                         to="/checkout"
                         className={buttonVariants({
                           variant: "default",
@@ -137,22 +151,23 @@ const CartPanel: React.FC<SheetModalProps> = () => {
             </>
           ) : (
             <section className="flex h-full w-full flex-col items-center justify-center overflow-y-scroll px-2">
-              <h2 className="text-lg tracking-wide font-abeezee">Please <span className="font-calsans text-xl">LogIN</span> or <span className="font-calsans text-xl">SignUP</span></h2>
+              <h2 className="font-abeezee text-lg tracking-wide">
+                Please <span className="font-calsans text-xl">LogIN</span> or{" "}
+                <span className="font-calsans text-xl">SignUP</span>
+              </h2>
               <Separator className="my-5 h-[2px] w-3/4 bg-black" />
               <div className="flex gap-3 p-4">
                 <Link to="/auth?type=login">
                   <Button
                     variant="secondary"
-                    onClick={() => setIsCartOpen(!isCartOpen)}
-                    >
+                    onClick={() => setIsCartOpen(!isCartOpen)}>
                     LogIN.
                   </Button>
                 </Link>
                 <Link to="/auth?type=signup">
                   <Button
                     variant="secondary"
-                    onClick={() => setIsCartOpen(!isCartOpen)}
-                    >
+                    onClick={() => setIsCartOpen(!isCartOpen)}>
                     SignUP.
                   </Button>
                 </Link>

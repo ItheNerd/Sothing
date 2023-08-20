@@ -11,7 +11,7 @@ export interface MainProductProps {
   products: Product[];
 }
 
-const MainProduct: React.FC<MainProductProps> = ({ products }) => {
+const MainProduct: React.FC<MainProductProps> = () => {
   return (
     <section className="mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <ul className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">

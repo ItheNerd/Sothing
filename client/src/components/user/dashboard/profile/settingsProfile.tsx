@@ -1,9 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { ProfileForm } from "@/components/user/dashboard/profile/profile-form";
 
-type Props = {};
-
-const SettingsProfilePage = (props: Props) => {
+const SettingsProfilePage = () => {
   return (
     <div className="space-y-4">
       <div>

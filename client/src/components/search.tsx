@@ -1,11 +1,4 @@
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
+import { Settings, ShoppingBag, ShoppingCart, User } from "lucide-react";
 
 import {
   Command,
@@ -16,7 +9,6 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
@@ -37,32 +29,19 @@ export function CommandMenu() {
   return (
     <>
       <Input
-        className="mx-4 w-full max-w-xs mr-auto hover:bg-base-200 hover:placeholder:text-black duration-500 placeholder:font-medium"
+        className="mx-4 mr-auto w-full max-w-xs duration-500 placeholder:font-medium hover:bg-base-200 hover:placeholder:text-black"
         placeholder=" Press ⌘K "
         onFocus={() => setOpen((open) => !open)}
       />
-      {/* <Input
-        className="mx-4 w-40 md: hover:bg-base-200 hover:placeholder:text-black duration-500 placeholder:font-medium"
-        placeholder=" Press ⌘K "
-        onFocus={() => setOpen((open) => !open)}
-      /> */}
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <Command className="rounded-lg border shadow-md">
+        <Command>
           <CommandInput placeholder="Type a command or search..." />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Suggestions">
               <CommandItem>
-                <Calendar className="mr-2 h-4 w-4" />
-                <span>Calendar</span>
-              </CommandItem>
-              <CommandItem>
-                <Smile className="mr-2 h-4 w-4" />
-                <span>Search Emoji</span>
-              </CommandItem>
-              <CommandItem>
-                <Calculator className="mr-2 h-4 w-4" />
-                <span>Calculator</span>
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                <span>Explore</span>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
@@ -70,17 +49,14 @@ export function CommandMenu() {
               <CommandItem>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
-                <CommandShortcut>⌘P</CommandShortcut>
               </CommandItem>
               <CommandItem>
-                <CreditCard className="mr-2 h-4 w-4" />
-                <span>Billing</span>
-                <CommandShortcut>⌘B</CommandShortcut>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                <span>Cart</span>
               </CommandItem>
               <CommandItem>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
-                <CommandShortcut>⌘S</CommandShortcut>
               </CommandItem>
             </CommandGroup>
           </CommandList>

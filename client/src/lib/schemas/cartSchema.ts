@@ -36,6 +36,7 @@ const ItemSchema = z.object({
   productId: ProductIDSchema,
   quantity: z.number(),
   variantConfigId: z.string(),
+  currency: z.string().optional(),
   _id: z.string(),
 });
 

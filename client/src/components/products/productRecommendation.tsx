@@ -3,13 +3,9 @@ import { ProductRecommendationSchema } from "@/lib/schemas/productSchema";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import {
-  ProductButton,
   ProductCard,
-  ProductCategory,
   ProductImage,
   ProductInfo,
-  ProductPrice,
-  ProductRating,
   ProductTitle,
 } from "./productCard";
 
@@ -26,8 +22,6 @@ const ProductRecommendation = ({
     ["products", "recommendations"],
     async () => await productAPI.getRecommendedProducts(productId!)
   );
-
-  console.log(recommendedProducts);
 
   return (
     <>
