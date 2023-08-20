@@ -16,7 +16,7 @@ const MainProduct: React.FC<MainProductProps> = () => {
     <section className="mx-auto px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
       <ul className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <header className="mx-auto w-full lg:col-span-3 lg:row-start-1">
-          <h2 className="flex justify-center rounded-lg border p-2 text-xl sm:text-2xl bg-base-300">
+          <h2 className="flex justify-center rounded-lg p-2 text-xl sm:text-2xl bg-muted">
             New Collections
           </h2>
         </header>

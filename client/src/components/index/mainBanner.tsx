@@ -46,7 +46,7 @@ const MainBanner: React.FC<MainBannerProps> = ({ mainBanner }) => {
             <Button
               size="lg"
               variant="secondary"
-              className="group relative inline-flex items-center overflow-hidden rounded bg-base-300 px-8 py-3 hover:bg-base-300 focus:outline-none">
+              className="group relative inline-flex items-center overflow-hidden rounded bg-muted px-8 py-3 focus:outline-none">
               <span className="absolute -end-full transition-all group-hover:end-4">
                 <svg
                   className="h-5 w-5 rtl:rotate-180"
@@ -63,7 +63,7 @@ const MainBanner: React.FC<MainBannerProps> = ({ mainBanner }) => {
                 </svg>
               </span>
 
-              <span className="text-base font-medium transition-all group-hover:me-4">
+              <span className="font-medium transition-all group-hover:me-4">
                 Know more
               </span>
             </Button>
