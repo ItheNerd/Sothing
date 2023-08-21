@@ -20,13 +20,14 @@ const limiter = RateLimit({
   max: 20,
 });
 
-// app.use((req, res, next) => {
-//   const trustedIPs = ["35.160.120.126", "44.233.151.27", "34.211.200.85", "18.139.194.139:443"];
-//   if (trustedIPs.includes(req.ip)) {
-//     app.set("trust proxy", true);
-//   }
-//   next();
-// });
+app.use((req, _, next) => {
+  const trustedIPs = ["35.160.120.126", "44.233.151.27", "34.211.200.85", "18.139.194.139:443"];
+  if (trustedIPs.includes(req.ip)) {
+    app.set("trust proxy", true);
+  }
+  next();
+});
+
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
