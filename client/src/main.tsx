@@ -18,11 +18,7 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   const element = useRoutes(routes);
-  return (
-    <>
-      <section>{element}</section>
-    </>
-  );
+  return <>{element}</>;
 };
 
 createRoot(document.getElementById("root")!).render(

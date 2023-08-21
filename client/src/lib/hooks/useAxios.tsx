@@ -5,7 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 
 const baseURL: string =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_SERVER_BASE_URL || "http://localhost:5000/api";
 
 type ErrorResponse = {
   message: string;

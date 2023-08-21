@@ -6,7 +6,7 @@ import { clearCookies } from "../utils";
 export type RegisterTypes = z.infer<typeof registerSchema>;
 export type LoginTypes = z.infer<typeof loginSchema>;
 
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+const baseURL = import.meta.env.VITE_API_SERVER_BASE_URL;
 
 const axiosAuthInstance = axios.create({
   baseURL,

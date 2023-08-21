@@ -32,34 +32,32 @@ export function useRoutesWith404(routes: any) {
   };
 
   return (
-    <>
-      <QueryAsyncBoundary
-        pendingFallback={
-          <div className="flex h-screen items-center justify-center">
-            <span className="loading loading-spinner loading-md" />
-          </div>
-        }
-        rejectedFallback={(boundary) => (
-          <div className="flex h-screen items-center justify-center">
-            <Alert
-              variant="destructive"
-              className="flex max-w-lg items-center justify-between align-middle">
-              <Terminal className="h-4 w-4" />
-              <div>
-                <AlertTitle>There was an error!</AlertTitle>
-                <AlertDescription className="font-mono">
-                  {boundary.error.message}
-                </AlertDescription>
-              </div>
-              <Button variant="destructive" onClick={boundary.reset}>
-                Try again
-              </Button>
-            </Alert>
-          </div>
-        )}>
-        {RouteRender()} <CartPanel />
-        <Toaster />
-      </QueryAsyncBoundary>
-    </>
+    <QueryAsyncBoundary
+      pendingFallback={
+        <div className="flex h-screen items-center justify-center">
+          <span className="loading loading-spinner loading-md" />
+        </div>
+      }
+      rejectedFallback={(boundary) => (
+        <div className="flex h-screen items-center justify-center">
+          <Alert
+            variant="destructive"
+            className="flex max-w-lg items-center justify-between align-middle">
+            <Terminal className="h-4 w-4" />
+            <div>
+              <AlertTitle>There was an error!</AlertTitle>
+              <AlertDescription className="font-mono">
+                {boundary.error.message}
+              </AlertDescription>
+            </div>
+            <Button variant="destructive" onClick={boundary.reset}>
+              Try again
+            </Button>
+          </Alert>
+        </div>
+      )}>
+      {RouteRender()} <CartPanel />
+      <Toaster />
+    </QueryAsyncBoundary>
   );
 }
