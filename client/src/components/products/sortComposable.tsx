@@ -19,7 +19,7 @@ export function SortCollapsible() {
       onOpenChange={setIsOpen}
       className="w-full space-y-2">
       <div className="flex items-center justify-between space-x-4 px-4">
-        <label className="block text-xs font-medium text-gray-700">
+        <label className="block text-xs font-medium">
           Sort By
         </label>
         <CollapsibleTrigger asChild>

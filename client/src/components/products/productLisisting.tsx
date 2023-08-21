@@ -101,8 +101,8 @@ function ProductRating({ rating }: { rating: number }) {
           key={index}
           name="rating-5"
           className={cn(
-            "form-radio mask mask-star-2 pointer-events-none border border-gray-200",
-            rating >= index + 1 ? "bg-gray-700" : "bg-gray-200"
+            "form-radio mask mask-star-2 pointer-events-none border-border",
+            rating >= index + 1 ? "bg-muted-foreground" : "bg-muted"
           )}
         />
       ))}
@@ -118,7 +118,7 @@ const ProductPrice = forwardRef(function ProductPrice(
   return (
     <div
       ref={ref}
-      className={cn("text-lg font-semibold text-gray-900", className)}
+      className={cn("text-lg font-semibold", className)}
       {...props}>
       {formattedPrice !== "" ? (
         new Intl.NumberFormat("en-US", {
@@ -135,7 +135,7 @@ const ProductPrice = forwardRef(function ProductPrice(
 function ProductDescription({ description }: { description: string }) {
   return (
     <div className="mt-4">
-      <div className="prose max-w-none">
+      <div className="prose text-secondary-foreground max-w-none">
         <p>{description}</p>
       </div>
 
@@ -176,7 +176,7 @@ const ProductTags = ({ tags }: { tags: string[] }) => {
   return (
     <div>
       {tags.map((tag, index) => (
-        <Badge key={index} variant="outline" className="mr-1 capitalize">
+        <Badge key={index} className="mr-1 capitalize">
           {tag}
         </Badge>
       ))}

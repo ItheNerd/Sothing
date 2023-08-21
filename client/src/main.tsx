@@ -7,6 +7,7 @@ import routes from "~react-pages";
 import { AuthProvider } from "./context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartSheetProvider } from "./context/CartContext";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,7 +28,9 @@ createRoot(document.getElementById("root")!).render(
       <AuthProvider>
         <CartSheetProvider>
           <QueryClientProvider client={queryClient}>
-            <App />
+            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+              <App />
+            </ThemeProvider>
           </QueryClientProvider>
         </CartSheetProvider>
       </AuthProvider>

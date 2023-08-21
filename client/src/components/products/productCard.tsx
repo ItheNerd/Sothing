@@ -86,7 +86,7 @@ export const ProductTitle = forwardRef(function ProductTitle(
     <span
       ref={ref}
       className={cn(
-        "text-sm capitalize text-gray-700 group-hover:underline group-hover:underline-offset-4",
+        "text-sm capitalize group-hover:underline group-hover:underline-offset-4",
         className
       )}
       {...props}>
@@ -105,7 +105,7 @@ export const ProductCategory = forwardRef(function ProductCategory(
   return (
     <div
       ref={ref}
-      className={cn("font-medium capitalize", className)}
+      className={cn("font-medium capitalize text-muted-foreground", className)}
       {...props}>
       {category}
     </div>
@@ -121,7 +121,7 @@ export const ProductRating = forwardRef(function ProductRating(
   ref: Ref<HTMLDivElement>
 ) {
   return (
-    <div ref={ref} className={cn("", className)} {...props}>
+    <div ref={ref} className={cn("text-muted-foreground", className)} {...props}>
       {[1, 2, 3, 4, 5].map((i) => (
         <Fragment key={i}>{i <= (stars ?? 0) ? "★" : "☆"}</Fragment>
       ))}
@@ -143,7 +143,7 @@ export const ProductPrice = forwardRef(function ProductPrice(
   return (
     <div
       ref={ref}
-      className={cn("tracking-wider text-gray-900", className)}
+      className={cn("tracking-wider text-muted-foreground", className)}
       {...props}>
       {formattedPrice !== "" ? (
         new Intl.NumberFormat("en-US", {

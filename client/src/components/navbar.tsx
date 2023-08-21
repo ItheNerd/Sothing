@@ -55,7 +55,7 @@ const components: { title: string; href: string; description: string }[] = [
 
 const navbar = () => {
   return (
-    <nav className="relative bg-white dark:bg-gray-800">
+    <nav className="relative">
       <div className="container mx-auto px-6 py-3">
         <div className="max-w-screen flex flex-row items-center justify-between">
           <div className="flex w-full max-w-xs items-center justify-center">

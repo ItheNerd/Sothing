@@ -20,9 +20,19 @@ interface FilterProps {
 }
 
 const Filter: React.FC<FilterProps> = ({ title, options }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = () => {
+    setIsOpen(!isOpen);
+  };
   return (
-    <details className="overflow-hidden rounded-md border text-sm [&_summary::-webkit-details-marker]:hidden">
-      <summary className="flex cursor-pointer items-center justify-between gap-2 p-4 text-gray-900 transition">
+    <details
+      className={`overflow-hidden rounded-md border text-sm [&_summary::-webkit-details-marker]:hidden ${
+        isOpen ? "group-open border-ring" : ""
+      }`}>
+      <summary
+        className="flex cursor-pointer items-center justify-between gap-2 p-4 transition"
+        onClick={handleToggle}>
         <span className="text-sm font-medium">{title}</span>
 
         <span className="transition group-open:-rotate-180">
@@ -42,29 +52,27 @@ const Filter: React.FC<FilterProps> = ({ title, options }) => {
         </span>
       </summary>
 
-      <div className="border-t border-gray-200 bg-white">
+      <div className="border-t border-ring">
         <header className="flex items-center justify-between p-4">
-          <span className="text-sm text-gray-700">0 Selected</span>
+          <span className="text-sm">0 Selected</span>
 
           <button
             type="button"
-            className="text-sm text-gray-900 underline underline-offset-4">
+            className="text-sm underline underline-offset-4">
             Reset
           </button>
         </header>
 
-        <ul className="space-y-1 border-t border-gray-200 p-4">
+        <ul className="space-y-1 border-t border-ring p-4">
           {options.map((value) => (
             <li key={value}>
               <label className="inline-flex items-center gap-2">
                 <input
                   type="checkbox"
                   id={`Filter${value}`}
-                  className="h-5 w-5 rounded border-gray-300"
+                  className="h-5 w-5 rounded border-ring"
                 />
-                <span className="text-sm font-medium text-gray-700">
-                  {value}
-                </span>
+                <span className="text-sm font-medium">{value}</span>
               </label>
             </li>
           ))}
@@ -94,10 +102,10 @@ const PriceFilter: React.FC<PriceFilterProps> = ({ options }) => {
   return (
     <details
       className={`overflow-hidden rounded-md border text-sm ${
-        isOpen ? "group-open" : ""
+        isOpen ? "group-open border-ring" : ""
       }`}>
       <summary
-        className="flex cursor-pointer items-center justify-between gap-2 p-4 text-gray-900 transition"
+        className="flex cursor-pointer items-center justify-between gap-2 p-4 transition"
         onClick={handleToggle}>
         <span className="text-sm font-medium">{options.label}</span>
         <span
@@ -114,36 +122,36 @@ const PriceFilter: React.FC<PriceFilterProps> = ({ options }) => {
         </span>
       </summary>
 
-      <div className="border-t border-gray-200 bg-white">
+      <div className="border-t border-ring">
         <header className="flex items-center justify-between p-4">
-          <span className="text-sm text-gray-700">
+          <span className="text-sm">
             The highest price is ${options.maxPrice}
           </span>
           <button
             type="button"
-            className="text-sm text-gray-900 underline underline-offset-4">
+            className="text-sm underline underline-offset-4">
             Reset
           </button>
         </header>
 
-        <div className="border-t border-gray-200 p-4">
+        <div className="border-t border-ring p-4">
           <div className="flex justify-between gap-4">
             <label className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">$</span>
+              <span className="text-sm">$</span>
               <input
                 type="number"
                 id="FilterPriceFrom"
                 placeholder="From"
-                className="w-full rounded-md border-gray-200 shadow-sm sm:text-sm"
+                className="w-full rounded-md border-ring shadow-sm sm:text-sm"
               />
             </label>
             <label className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">$</span>
+              <span className="text-sm">$</span>
               <input
                 type="number"
                 id="FilterPriceTo"
                 placeholder="To"
-                className="w-full rounded-md border-gray-200 shadow-sm sm:text-sm"
+                className="w-full rounded-md border-ring shadow-sm sm:text-sm"
               />
             </label>
           </div>
@@ -177,7 +185,7 @@ export const ProductCollection: React.FC<ProductCollectionProps> = ({
           <SortCollapsible />
 
           <div>
-            <p className="block text-xs font-medium text-gray-700">Filters</p>
+            <p className="block text-xs font-medium">Filters</p>
 
             <div className="mt-1 space-y-2">
               <Filter

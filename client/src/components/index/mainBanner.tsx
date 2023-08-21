@@ -1,6 +1,5 @@
 import React from "react";
 import { Button } from "../ui/button";
-// import Banner from "../ui/banner";
 
 interface MainBannerProps {
   mainBanner: MainBannerData;
@@ -19,23 +18,6 @@ const MainBanner: React.FC<MainBannerProps> = ({ mainBanner }) => {
   return (
     <section className="mx-auto px-4 pt-8 sm:px-6 lg:px-8">
       <div className="relative isolate mx-auto overflow-hidden rounded-lg border-2 bg-opacity-95 px-6 pt-16 sm:px-16 md:pt-24 lg:flex lg:gap-x-40 lg:px-24 lg:pt-0">
-        {/* <svg
-          viewBox="0 0 1024 1024"
-          className="absolute left-1/2 top-1/2 -z-10 h-[64rem] w-[64rem] -translate-y-1/2 [mask-image:radial-gradient(closest-side,white,transparent)] sm:left-full sm:-ml-80 lg:left-1/2 lg:ml-0 lg:-translate-x-1/2 lg:translate-y-0"
-          aria-hidden="true">
-          <circle
-            cx="512"
-            cy="512"
-            r="512"
-            fill="url(#gradient)"
-            fillOpacity="0.7"></circle>
-          <defs>
-            <radialGradient id="gradient">
-              <stop stopColor="#ffffff"></stop>
-              <stop offset="1" stopColor="#ffffff"></stop>
-            </radialGradient>
-          </defs>
-        </svg> */}
         <div className="mx-auto max-w-md text-center lg:mx-0 lg:flex-auto lg:py-32 lg:text-left">
           <h2 className="text-4xl font-bold tracking-tight sm:text-6xl">
             {mainBanner.largeText1}
@@ -45,8 +27,8 @@ const MainBanner: React.FC<MainBannerProps> = ({ mainBanner }) => {
             <Button size="lg">{mainBanner.buttonText}</Button>
             <Button
               size="lg"
-              variant="secondary"
-              className="group relative inline-flex items-center overflow-hidden rounded bg-muted px-8 py-3 focus:outline-none">
+              variant="ghost"
+              className="group relative inline-flex items-center overflow-hidden bg-muted px-8 py-3 focus:outline-none">
               <span className="absolute -end-full transition-all group-hover:end-4">
                 <svg
                   className="h-5 w-5 rtl:rotate-180"

@@ -27,10 +27,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
 import { Link } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
 
 export function DropdownMenuDemo() {
   const { user, logoutUser } = useAuth();
   const { isOpen: isCartOpen, setIsOpen: setIsCartOpen } = useCart();
+  const { setTheme } = useTheme();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -68,16 +70,16 @@ export function DropdownMenuDemo() {
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")}>
                   <Moon className="mr-2 h-4 w-4" />
                   <span>Dark</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("light")}>
                   <Sun className="mr-2 h-4 w-4" />
                   <span>Light</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("system")}>
                   <Monitor className="mr-2 h-4 w-4" />
                   <span>System</span>
                 </DropdownMenuItem>

@@ -8,6 +8,7 @@ import {
   ProductInfo,
   ProductTitle,
 } from "./productCard";
+import { Badge } from "../ui/badge";
 
 type ProductRecommendationType = z.infer<typeof ProductRecommendationSchema>;
 
@@ -26,9 +27,9 @@ const ProductRecommendation = ({
   return (
     <>
       <div className="relative mx-auto max-w-screen-xl px-4 py-8">
-        <h2 className="badge border-border p-4 text-xl">
+        <Badge className="border-border p-3 text-xl">
           Recommended Products
-        </h2>
+        </Badge>
         <div className="relative grid grid-cols-5 gap-4 lg:mt-4">
           {recommendedProducts?.map((product: ProductRecommendationType, _) => (
             <ProductCard
